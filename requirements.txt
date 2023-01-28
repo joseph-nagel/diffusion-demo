@@ -1,0 +1,8 @@
+numpy
+torch
+torchvision
+pytorch_lightning
+scikit-learn
+matplotlib
+notebook
+
