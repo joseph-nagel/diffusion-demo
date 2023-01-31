@@ -1,6 +1,11 @@
 '''
 Denoising diffusion.
 
+Summary
+-------
+A simple but generic implementation of denoising diffusion models is provided.
+The goal is merely to establish a starting point for further explorations.
+
 Modules
 -------
 ddpm : Denoising diffusion model.

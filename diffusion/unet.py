@@ -7,7 +7,19 @@ from .layers import \
     ConditionalResidualBlock
 
 class UNet(nn.Module):
-    '''Conditional U-net.'''
+    '''
+    Conditional U-net.
+
+    Summary
+    -------
+    A conditional U-net variant is implemented in this module.
+    It is composed of encoder, bottleneck and decoder parts.
+    While encoder and decoder contain multiple blocks of two normal
+    conv-layers, only the bottleneck uses standard residual blocks.
+    The conditioning is here realized by ingesting a time embedding
+    into the middle of such a block, after the first convolution.
+
+    '''
 
     def __init__(self,
                  encoder,
@@ -22,7 +34,7 @@ class UNet(nn.Module):
     @classmethod
     def from_params(cls,
                     in_channels=1,
-                    mid_channels=(8, 16, 32),
+                    mid_channels=[8, 16, 32],
                     kernel_size=3,
                     padding=1,
                     norm='batch',

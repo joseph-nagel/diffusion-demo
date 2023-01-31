@@ -6,7 +6,16 @@ import pytorch_lightning as pl
 
 class DDPM(pl.LightningModule):
     '''
-    Denoising diffusion model.
+    Plain vanilla DDPM module.
+
+    Summary
+    -------
+    This module establishes a plain vanilla DDPM variant.
+    It is basically a container and wrapper for an
+    epsilon model and for the scheduling parameters.
+    The class provides methods implementing the forward
+    and reverse diffusion processes, respectively.
+    Also, the stochastic loss can be computed for training.
 
     Parameters
     ----------
@@ -40,6 +49,10 @@ class DDPM(pl.LightningModule):
 
         # set scheduling parameters
         betas = torch.as_tensor(betas).view(-1) # note that betas[0] corresponds to t = 1.0
+
+        if betas.min() <= 0 or betas.max() >= 1:
+            raise ValueError('Invalid beta values encountered')
+
         alphas = 1.0 - betas
         alphas_bar = torch.cumprod(alphas, dim=0)
 
@@ -113,25 +126,31 @@ class DDPM(pl.LightningModule):
     def denoise_all_steps(self, xT):
         '''Perform and return all reverse process steps.'''
         x_denoised = torch.zeros(self.num_steps + 1, *(xT.shape))
+
         x_denoised[0] = xT
         for idx, tidx in enumerate(reversed(range(self.num_steps))):
             x_denoised_mean, x_denoised_var = self.denoise_step(x_denoised[idx], tidx, return_var=True)
+
             x_denoised[idx + 1] = x_denoised_mean
             if tidx > 0:
                 eps = torch.randn_like(x_denoised[idx + 1])
                 x_denoised[idx + 1] += x_denoised_var.sqrt() * eps
+
         return x_denoised
 
     @torch.no_grad()
     def generate(self, sample_shape, num_samples=1):
         '''Generate random samples through the reverse process.'''
         x_denoised = torch.randn(num_samples, *sample_shape)
+
         for tidx in reversed(range(self.num_steps)):
             x_denoised_mean, x_denoised_var = self.denoise_step(x_denoised, tidx, return_var=True)
+
             x_denoised = x_denoised_mean
             if tidx > 0:
                 eps = torch.randn_like(x_denoised)
                 x_denoised += x_denoised_var.sqrt() * eps
+
         return x_denoised
 
     def loss(self, x):
@@ -145,7 +164,7 @@ class DDPM(pl.LightningModule):
         return loss
 
     def training_step(self, batch, batch_idx):
-        x_batch = batch[0]
+        x_batch = batch[0] # get features and discard labels
         loss = self.loss(x_batch)
         return loss
 

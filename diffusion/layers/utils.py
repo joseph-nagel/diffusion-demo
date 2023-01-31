@@ -70,7 +70,7 @@ def make_conv(in_channels,
     activation = make_activation(activation)
     norm = make_norm(norm, num_features=out_channels)
 
-    layers = [conv, activation, norm]
+    layers = [conv, activation, norm] # note that the normalization follows the activation (which could be reversed of course)
     conv_block = nn.Sequential(*layers)
 
     return conv_block
