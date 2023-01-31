@@ -20,6 +20,8 @@ from .ddpm import DDPM
 from .layers import \
     ConditionalDoubleConv, \
     ConditionalResidualBlock, \
+    ConditionalDense, \
+    ConditionalDenseModel, \
     SinusoidalEncoding
 
 from .schedules import make_beta_schedule
