@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from layers import \
+from .layers import \
     ConditionalDoubleConv, \
     ConditionalResidualBlock
 
@@ -39,7 +39,7 @@ class UNet(nn.Module):
                           pooling=2,
                           norm=norm,
                           activation=activation,
-                          embed_dim=None)
+                          embed_dim=embed_dim)
 
         decoder = Decoder(mid_channels=mid_channels[::-1],
                           out_channels=in_channels,
@@ -48,7 +48,7 @@ class UNet(nn.Module):
                           scaling=2,
                           norm=norm,
                           activation=activation,
-                          embed_dim=None,
+                          embed_dim=embed_dim,
                           upsample_mode=upsample_mode)
 
         bottleneck = Bottleneck(num_resblocks=num_resblocks,

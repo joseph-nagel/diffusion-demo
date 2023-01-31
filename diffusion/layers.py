@@ -39,11 +39,11 @@ def make_conv(in_channels,
                      padding=padding,
                      bias=norm != 'batch') # disable bias when using batchnorm
 
-    norm = make_norm(norm, num_features=out_channels)
     activation = make_activation(activation)
+    norm = make_norm(norm, num_features=out_channels)
 
-    layers = [conv, norm, activation]
-    layers = [l for l in layers if l is not None]
+    layers = [conv, activation, norm]
+    # layers = [l for l in layers if l is not None]
     conv_block = nn.Sequential(*layers)
 
     return conv_block
@@ -52,7 +52,7 @@ def make_conv(in_channels,
 def make_norm(mode, num_features):
     '''Create normalization.'''
     if mode is None:
-        norm = None
+        norm = nn.Identity()
     elif mode == 'batch':
         norm = nn.BatchNorm2d(num_features)
     elif mode == 'instance':
@@ -65,7 +65,7 @@ def make_norm(mode, num_features):
 def make_activation(mode):
     '''Create activation.'''
     if mode is None:
-        activation = None
+        activation = nn.Identity()
     elif mode == 'sigmoid':
         activation = nn.Sigmoid()
     elif mode == 'tanh':
@@ -140,7 +140,7 @@ class ConditionalDoubleConv(DoubleConv):
 
         if embed_dim is not None:
             self.emb = nn.Sequential(
-                PositionEmbedding(embed_dim=embed_dim),
+                SinusoidalEncoding(embed_dim=embed_dim),
                 nn.Linear(embed_dim, out_channels)
             )
         else:
@@ -152,7 +152,9 @@ class ConditionalDoubleConv(DoubleConv):
         # add positional embedding channelwise after first conv block (conditioning)
         if self.emb is not None:
             emb = self.emb(t)
-            # print(emb.shape) # TODO: check shape
+            # print('t:', t.shape)
+            # print('out:', out.shape)
+            # print('emb:', emb.shape)
             out = out + emb.view(*emb.shape, 1, 1)
 
         out = self.conv_block2(out)
@@ -211,7 +213,7 @@ class ConditionalResidualBlock(ResidualBlock):
 
         if embed_dim is not None:
             self.emb = nn.Sequential(
-                PositionEmbedding(embed_dim=embed_dim),
+                SinusoidalEncoding(embed_dim=embed_dim),
                 nn.Linear(embed_dim, num_channels)
             )
         else:
@@ -223,8 +225,10 @@ class ConditionalResidualBlock(ResidualBlock):
         # add positional embedding channelwise after first conv block (conditioning)
         if self.emb is not None:
             emb = self.emb(t)
-            # print(emb.shape)
-            out = out + emb.view(*emb.shape, 1, 1) # TODO: check shape
+            # print('t:', t.shape)
+            # print('out:', out.shape)
+            # print('emb:', emb.shape)
+            out = out + emb.view(*emb.shape, 1, 1)
 
         out = self.conv_block2(out)
         out = out + x # add input before final activation (additive skip connection)
@@ -232,9 +236,9 @@ class ConditionalResidualBlock(ResidualBlock):
         return out
 
 
-class PositionEmbedding(nn.Module):
+class SinusoidalEncoding(nn.Module):
     '''
-    Sinusoidal position embedding.
+    Sinusoidal position encoding.
 
     Summary
     -------
@@ -258,6 +262,7 @@ class PositionEmbedding(nn.Module):
         self.embed_dim = embed_dim
 
     def forward(self, t):
+        # ensure (batch_size>=1, 1)-shaped tensor
         if t.size == 1:
             t = t.view(1, 1)
         elif t.ndim != 2 or t.shape[1] != 1:
