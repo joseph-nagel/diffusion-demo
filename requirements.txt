@@ -1,7 +1,8 @@
 numpy
+pandas
 torch
 torchvision
-pytorch_lightning
+pytorch-lightning
 scikit-learn
 matplotlib
 notebook
