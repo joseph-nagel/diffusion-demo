@@ -27,7 +27,8 @@ from .layers import \
     ConditionalResidualBlock, \
     ConditionalDense, \
     ConditionalDenseModel, \
-    SinusoidalEncoding
+    SinusoidalEncoding, \
+    LearnableSinusoidalEncoding
 
 from .schedules import make_beta_schedule
 

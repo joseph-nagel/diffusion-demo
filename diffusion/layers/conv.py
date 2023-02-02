@@ -1,7 +1,7 @@
 '''Convolutional layers.'''
 
 import torch.nn as nn
-from .embed import SinusoidalEncoding
+from .embed import LearnableSinusoidalEncoding
 from .utils import make_conv, make_activation
 
 class DoubleConv(nn.Module):
@@ -58,10 +58,7 @@ class ConditionalDoubleConv(DoubleConv):
                          activation=activation)
 
         if embed_dim is not None:
-            self.emb = nn.Sequential(
-                SinusoidalEncoding(embed_dim=embed_dim),
-                nn.Linear(embed_dim, out_channels)
-            )
+            self.emb = LearnableSinusoidalEncoding([embed_dim, out_channels])
         else:
             self.emb = None
 
@@ -128,10 +125,7 @@ class ConditionalResidualBlock(ResidualBlock):
                          activation=activation)
 
         if embed_dim is not None:
-            self.emb = nn.Sequential(
-                SinusoidalEncoding(embed_dim=embed_dim),
-                nn.Linear(embed_dim, num_channels)
-            )
+            self.emb = LearnableSinusoidalEncoding([embed_dim, num_channels])
         else:
             self.emb = None
 

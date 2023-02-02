@@ -1,7 +1,7 @@
 '''Fully connected layers.'''
 
 import torch.nn as nn
-from .embed import SinusoidalEncoding
+from .embed import LearnableSinusoidalEncoding
 from .utils import make_activation
 
 class ConditionalDense(nn.Module):
@@ -19,10 +19,7 @@ class ConditionalDense(nn.Module):
         self.activation = make_activation(activation)
 
         if embed_dim is not None:
-            self.emb = nn.Sequential(
-                SinusoidalEncoding(embed_dim=embed_dim),
-                nn.Linear(embed_dim, out_features)
-            )
+            self.emb = LearnableSinusoidalEncoding([embed_dim, out_features])
         else:
             self.emb = None
 
@@ -49,17 +46,17 @@ class ConditionalDenseModel(nn.Module):
                  embed_dim=None):
         super().__init__()
 
-        num_layers = len(num_features) - 1
-
-        if num_layers < 1:
+        if len(num_features) < 2:
             raise ValueError('Number of features needs at least two entries')
+
+        num_layers = len(num_features) - 1
 
         dense_list = []
         for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
-            is_last = (idx < num_layers - 1)
+            is_not_last = (idx < num_layers - 1)
             dense = ConditionalDense(in_features,
                                      out_features,
-                                     activation=activation if is_last else None, # set activation for all layers except the last
+                                     activation=activation if is_not_last else None, # set activation for all layers except the last
                                      embed_dim=embed_dim) # set time embedding for all layers
             dense_list.append(dense)
 

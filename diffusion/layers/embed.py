@@ -2,6 +2,7 @@
 
 import torch
 import torch.nn as nn
+from .utils import make_dense
 
 class SinusoidalEncoding(nn.Module):
     '''
@@ -30,7 +31,7 @@ class SinusoidalEncoding(nn.Module):
 
     def forward(self, t):
         # ensure (batch_size>=1, 1)-shaped tensor
-        if t.size == 1:
+        if t.numel() == 1:
             t = t.view(1, 1)
         elif t.ndim != 2 or t.shape[1] != 1:
             raise ValueError('Invalid shape encountered: {}'.format(t.shape))
@@ -45,4 +46,38 @@ class SinusoidalEncoding(nn.Module):
         emb[:,0::2] = torch.sin(aux)
         emb[:,1::2] = torch.cos(aux)
         return emb
+
+
+class LearnableSinusoidalEncoding(nn.Sequential):
+    '''
+    Learnable sinusoidal position encoding.
+
+    Summary
+    -------
+    Multiple FC layers are stacked after a sinusoidal encoding.
+    This represents a learnable variant of the position embedding.
+
+    '''
+
+    def __init__(self, num_features, activation='relu'):
+
+        if len(num_features) < 2:
+            raise ValueError('Number of features needs at least two entries')
+
+        num_dense_layers = len(num_features) - 1
+
+        # create sinusoidal encoding
+        embed_dim = num_features[0]
+        sinusoidal_encoding = SinusoidalEncoding(embed_dim=embed_dim)
+
+        # create FC layers
+        dense_list = []
+        for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
+            is_not_last = (idx < num_dense_layers - 1)
+            dense = make_dense(in_features,
+                               out_features,
+                               activation=activation if is_not_last else None) # set activation for all layers except the last
+            dense_list.append(dense)
+
+        super().__init__(sinusoidal_encoding, *dense_list)
 

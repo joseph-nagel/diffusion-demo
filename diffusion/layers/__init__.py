@@ -25,7 +25,9 @@ from .dense import \
     ConditionalDense, \
     ConditionalDenseModel
 
-from .embed import SinusoidalEncoding
+from .embed import \
+    SinusoidalEncoding, \
+    LearnableSinusoidalEncoding
 
 from .utils import \
     make_dense, \
