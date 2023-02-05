@@ -28,7 +28,8 @@ from .layers import \
     ConditionalDense, \
     ConditionalDenseModel, \
     SinusoidalEncoding, \
-    LearnableSinusoidalEncoding
+    LearnableSinusoidalEncoding, \
+    SelfAttention
 
 from .schedules import make_beta_schedule
 

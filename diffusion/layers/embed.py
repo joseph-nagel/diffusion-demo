@@ -10,7 +10,7 @@ class SinusoidalEncoding(nn.Module):
 
     Summary
     -------
-    This class implements the embedding from the attention paper https://arxiv.org/abs/1706.03762.
+    This class implements the embedding from the transformer paper https://arxiv.org/abs/1706.03762.
     It can be used in order to encode spatial positions or times and ingest them in further layers.
     For a (batch_size, 1)-shaped input, the (batch_size, embed_dim)-sized embedding is computed.
 
