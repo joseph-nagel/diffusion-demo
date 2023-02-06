@@ -69,6 +69,10 @@ class DDPM(pl.LightningModule):
         '''Get the total number of time steps.'''
         return len(self.betas)
 
+    def forward(self, x, t):
+        '''Run the noise-predicting model.'''
+        return self.eps_model(x, t)
+
     def diffuse_step(self, x, tidx):
         '''Simulate single forward process step.'''
         beta = self.betas[tidx] # note that tidx = 0 corresponds to t = 1.0
@@ -78,7 +82,7 @@ class DDPM(pl.LightningModule):
 
     def diffuse_all_steps(self, x0):
         '''Simulate and return all forward process steps.'''
-        x_noisy = torch.zeros(self.num_steps + 1, *x0.shape)
+        x_noisy = torch.zeros(self.num_steps + 1, *x0.shape, device=x0.device)
         x_noisy[0] = x0
         for tidx in range(self.num_steps):
             x_noisy[tidx + 1] = self.diffuse_step(x_noisy[tidx], tidx)
@@ -99,13 +103,16 @@ class DDPM(pl.LightningModule):
         else:
             return x_noisy
 
-    def denoise_step(self, x, tids, return_var=False):
+    def denoise_step(self, x, tids, random_sample=False):
         '''Perform single reverse process step.'''
-        tids = torch.as_tensor(tids).view(-1, 1) # ensure (batch_size>=1, 1)-shaped tensor
+        # ensure (batch_size>=1, 1)-shaped tensor
+        tids = torch.as_tensor(tids, device=x.device).view(-1, 1)
         t = tids + 1 # note that tidx = 0 corresponds to t = 1.0
 
-        eps_pred = self.eps_model(x, t) # predict eps based on noisy x and t
+        # predict eps based on noisy x and t
+        eps_pred = self.eps_model(x, t)
 
+        # compute mean
         p = 1 / self.alphas[tids].sqrt()
         q = self.betas[tids] / (1 - self.alphas_bar[tids]).sqrt()
 
@@ -114,52 +121,64 @@ class DDPM(pl.LightningModule):
         q = q.view(*q.shape, *missing_shape)
 
         x_denoised_mean = p * (x - q * eps_pred)
+
+        # retrieve variance
         x_denoised_var = self.betas_tilde[tids]
         # x_denoised_var = self.betas[tids]
 
-        if return_var:
-            return x_denoised_mean, x_denoised_var
+        # generate random sample
+        if random_sample:
+            eps = torch.randn_like(x_denoised_mean)
+            x_denoised = x_denoised_mean + x_denoised_var.sqrt() * eps
+
+        if random_sample:
+            return x_denoised
         else:
-            return x_denoised_mean
+            return x_denoised_mean, x_denoised_var
 
     @torch.no_grad()
     def denoise_all_steps(self, xT):
         '''Perform and return all reverse process steps.'''
-        x_denoised = torch.zeros(self.num_steps + 1, *(xT.shape))
+        x_denoised = torch.zeros(self.num_steps + 1, *(xT.shape), device=xT.device)
 
         x_denoised[0] = xT
         for idx, tidx in enumerate(reversed(range(self.num_steps))):
-            x_denoised_mean, x_denoised_var = self.denoise_step(x_denoised[idx], tidx, return_var=True)
-
-            x_denoised[idx + 1] = x_denoised_mean
+            # generate random sample
             if tidx > 0:
-                eps = torch.randn_like(x_denoised[idx + 1])
-                x_denoised[idx + 1] += x_denoised_var.sqrt() * eps
+                x_denoised[idx + 1] = self.denoise_step(x_denoised[idx], tidx, random_sample=True)
+            # take the mean in the last step
+            else:
+                x_denoised[idx + 1], _ = self.denoise_step(x_denoised[idx], tidx, random_sample=False)
 
         return x_denoised
 
     @torch.no_grad()
     def generate(self, sample_shape, num_samples=1):
         '''Generate random samples through the reverse process.'''
-        x_denoised = torch.randn(num_samples, *sample_shape)
+        x_denoised = torch.randn(num_samples, *sample_shape, device=self.device) # Lightning modules have a device attribute
 
         for tidx in reversed(range(self.num_steps)):
-            x_denoised_mean, x_denoised_var = self.denoise_step(x_denoised, tidx, return_var=True)
-
-            x_denoised = x_denoised_mean
+            # generate random sample
             if tidx > 0:
-                eps = torch.randn_like(x_denoised)
-                x_denoised += x_denoised_var.sqrt() * eps
+                x_denoised = self.denoise_step(x_denoised, tidx, random_sample=True)
+            # take the mean in the last step
+            else:
+                x_denoised, _ = self.denoise_step(x_denoised, tidx, random_sample=False)
 
         return x_denoised
 
     def loss(self, x):
         '''Compute stochastic loss.'''
-        ts = torch.randint(0, self.num_steps, size=(x.shape[0], 1)) # draw random time steps
+        # draw random time steps
+        ts = torch.randint(0, self.num_steps, size=(x.shape[0], 1), device=x.device)
 
+        # perform forward process steps
         x_noisy, eps = self.diffuse(x, ts, return_eps=True)
-        eps_pred = self.eps_model(x_noisy, ts) # predict eps based on noisy x and t
 
+        # predict eps based on noisy x and t
+        eps_pred = self.eps_model(x_noisy, ts)
+
+        # compute loss
         loss = self.criterion(eps_pred, eps)
         return loss
 
