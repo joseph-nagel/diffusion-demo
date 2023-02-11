@@ -19,23 +19,27 @@ from . import utils
 
 from .attention import SelfAttention
 
-from .conv import \
-    DoubleConv, \
-    ConditionalDoubleConv, \
-    ResidualBlock, \
+from .conv import (
+    DoubleConv,
+    ConditionalDoubleConv,
+    ResidualBlock,
     ConditionalResidualBlock
+)
 
-from .dense import \
-    ConditionalDense, \
+from .dense import (
+    ConditionalDense,
     ConditionalDenseModel
+)
 
-from .embed import \
-    SinusoidalEncoding, \
+from .embed import (
+    SinusoidalEncoding,
     LearnableSinusoidalEncoding
+)
 
-from .utils import \
-    make_dense, \
-    make_conv, \
-    make_activation, \
+from .utils import (
+    make_dense,
+    make_conv,
+    make_activation,
     make_norm
+)
 

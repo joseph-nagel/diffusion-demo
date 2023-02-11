@@ -2,6 +2,7 @@
 
 import torch
 
+
 def make_beta_schedule(num_steps,
                        mode='linear',
                        beta_range=(1e-04, 0.02),

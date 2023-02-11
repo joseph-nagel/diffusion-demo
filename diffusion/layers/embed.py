@@ -2,7 +2,9 @@
 
 import torch
 import torch.nn as nn
+
 from .utils import make_dense
+
 
 class SinusoidalEncoding(nn.Module):
     '''

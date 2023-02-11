@@ -1,8 +1,10 @@
 '''Fully connected layers.'''
 
 import torch.nn as nn
+
 from .embed import LearnableSinusoidalEncoding
 from .utils import make_activation
+
 
 class ConditionalDense(nn.Module):
     '''Conditional fully connected layer.'''

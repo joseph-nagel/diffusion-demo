@@ -2,6 +2,7 @@
 
 import torch.nn as nn
 
+
 def make_dense(in_features,
                out_features,
                bias=True,

@@ -1,8 +1,10 @@
 '''Convolutional layers.'''
 
 import torch.nn as nn
+
 from .embed import LearnableSinusoidalEncoding
 from .utils import make_conv, make_activation
+
 
 class DoubleConv(nn.Module):
     '''Double convolution block.'''

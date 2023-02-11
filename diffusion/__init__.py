@@ -22,20 +22,22 @@ from . import unet
 
 from .ddpm import DDPM
 
-from .layers import \
-    ConditionalDoubleConv, \
-    ConditionalResidualBlock, \
-    ConditionalDense, \
-    ConditionalDenseModel, \
-    SinusoidalEncoding, \
-    LearnableSinusoidalEncoding, \
+from .layers import (
+    ConditionalDoubleConv,
+    ConditionalResidualBlock,
+    ConditionalDense,
+    ConditionalDenseModel,
+    SinusoidalEncoding,
+    LearnableSinusoidalEncoding,
     SelfAttention
+)
 
 from .schedules import make_beta_schedule
 
-from .unet import \
-    UNet, \
-    Encoder, \
-    Decoder, \
+from .unet import (
+    UNet,
+    Encoder,
+    Decoder,
     Bottleneck
+)
 

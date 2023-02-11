@@ -3,6 +3,7 @@
 import torch
 import torch.nn as nn
 
+
 class SelfAttention(nn.Module):
     '''
     Self-attention module.

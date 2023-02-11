@@ -2,9 +2,12 @@
 
 import torch
 import torch.nn as nn
-from .layers import \
-    ConditionalDoubleConv, \
+
+from .layers import (
+    ConditionalDoubleConv,
     ConditionalResidualBlock
+)
+
 
 class UNet(nn.Module):
     '''
