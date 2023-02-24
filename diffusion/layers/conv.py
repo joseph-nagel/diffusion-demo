@@ -14,6 +14,7 @@ class DoubleConv(nn.Module):
                  out_channels,
                  kernel_size=3,
                  padding=1,
+                 bias=True,
                  norm='batch',
                  activation='relu'):
         super().__init__()
@@ -23,6 +24,7 @@ class DoubleConv(nn.Module):
                                      kernel_size=kernel_size,
                                      stride=1,
                                      padding=padding,
+                                     bias=bias,
                                      norm=norm,
                                      activation=activation)
 
@@ -31,6 +33,7 @@ class DoubleConv(nn.Module):
                                      kernel_size=kernel_size,
                                      stride=1,
                                      padding=padding,
+                                     bias=bias,
                                      norm=norm,
                                      activation=activation)
 
@@ -48,6 +51,7 @@ class ConditionalDoubleConv(DoubleConv):
                  out_channels,
                  kernel_size=3,
                  padding=1,
+                 bias=True,
                  norm='batch',
                  activation='relu',
                  embed_dim=None):
@@ -56,6 +60,7 @@ class ConditionalDoubleConv(DoubleConv):
                          out_channels,
                          kernel_size=kernel_size,
                          padding=padding,
+                         bias=bias,
                          norm=norm,
                          activation=activation)
 
@@ -82,6 +87,7 @@ class ResidualBlock(nn.Module):
     def __init__(self,
                  num_channels,
                  kernel_size=3, # the classical resblock has a kernel size of 3
+                 bias=True,
                  norm='batch',
                  activation='relu'):
         super().__init__()
@@ -91,6 +97,7 @@ class ResidualBlock(nn.Module):
                                      kernel_size=kernel_size,
                                      stride=1,
                                      padding='same',
+                                     bias=bias,
                                      norm=norm,
                                      activation=activation)
 
@@ -99,6 +106,7 @@ class ResidualBlock(nn.Module):
                                      kernel_size=kernel_size,
                                      stride=1,
                                      padding='same',
+                                     bias=bias,
                                      norm=norm,
                                      activation=None) # remove activation from conv block
         self.activation = make_activation(activation) # create separate activation instead
@@ -117,12 +125,14 @@ class ConditionalResidualBlock(ResidualBlock):
     def __init__(self,
                  num_channels,
                  kernel_size=3, # the classical resblock has a kernel size of 3
+                 bias=True,
                  norm='batch',
                  activation='relu',
                  embed_dim=None):
 
         super().__init__(num_channels,
                          kernel_size=kernel_size,
+                         bias=bias,
                          norm=norm,
                          activation=activation)
 

@@ -37,6 +37,7 @@ def make_conv(in_channels,
               kernel_size=3,
               stride=1,
               padding=1,
+              bias=True,
               norm=None,
               activation=None):
     '''
@@ -54,6 +55,8 @@ def make_conv(in_channels,
         Stride parameter.
     padding : int
         Padding parameter.
+    bias : bool
+        Determines whether a bias is used.
     norm : None or str
         Determines the normalization.
     activation : None or str
@@ -66,7 +69,7 @@ def make_conv(in_channels,
                      kernel_size=kernel_size,
                      stride=stride,
                      padding=padding,
-                     bias=norm != 'batch') # disable bias when using batchnorm
+                     bias=bias) # the bias should be disabled if a batchnorm directly follows after the convolution
 
     activation = make_activation(activation)
     norm = make_norm(norm, num_features=out_channels)
