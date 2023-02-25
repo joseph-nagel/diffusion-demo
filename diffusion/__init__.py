@@ -20,7 +20,7 @@ from . import layers
 from . import schedules
 from . import unet
 
-from .ddpm import DDPM
+from .ddpm import DDPM, DDPM2d
 
 from .layers import (
     ConditionalDoubleConv,

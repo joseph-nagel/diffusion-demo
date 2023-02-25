@@ -7,11 +7,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-from diffusion import (
-    DDPM,
-    UNet,
-    make_beta_schedule
-)
+from diffusion import DDPM2d
 
 
 def main(args):
@@ -50,26 +46,20 @@ def main(args):
 
 
     # initialize model
-    eps_model = UNet.from_params(in_channels=1,
-                                 mid_channels=args.mid_channels,
-                                 kernel_size=args.kernel_size,
-                                 padding=args.padding,
-                                 norm=args.norm,
-                                 activation=args.activation,
-                                 embed_dim=args.embed_dim,
-                                 num_resblocks=args.num_resblocks,
-                                 upsample_mode=args.upsample_mode)
-
-    if args.beta_mode == 'quadratic':
-        beta_opts = {'beta_range': args.beta_range}
-    elif args.beta_mode == 'cosine':
-        beta_opts = {'cosine_s': args.cosine_s}
-    elif args.beta_mode == 'sigmoid':
-        beta_opts = {'sigmoid_range': args.sigmoid_range}
-
-    betas = make_beta_schedule(num_steps=args.num_steps, mode=args.beta_mode, **beta_opts)
-
-    ddpm = DDPM(eps_model=eps_model, betas=betas, criterion='mse')
+    ddpm = DDPM2d(in_channels=1,
+                  mid_channels=args.mid_channels,
+                  kernel_size=args.kernel_size,
+                  padding=args.padding,
+                  norm=args.norm,
+                  activation=args.activation,
+                  embed_dim=args.embed_dim,
+                  num_resblocks=args.num_resblocks,
+                  upsample_mode=args.upsample_mode,
+                  beta_mode=args.beta_mode,
+                  beta_range=args.beta_range,
+                  cosine_s=args.cosine_s,
+                  sigmoid_range=args.sigmoid_range,
+                  num_steps=args.num_steps)
 
 
     # train model
@@ -97,14 +87,14 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, default='data', help='data dir')
 
     parser.add_argument('--save-dir', type=str, default='.', help='save dir')
-    parser.add_argument('--name', type=str, default='lightning_logs', help='experiment name')
+    parser.add_argument('--name', type=str, default='mnist', help='experiment name')
     parser.add_argument('--version', type=str, required=False, help='experiment version')
 
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--num-workers', type=int, default=0, help='number of workers')
 
     parser.add_argument('--mid-channels', type=int, nargs='+', default=[8, 16, 32], help='channel numbers')
-    parser.add_argument('--kernel-size', type=int, default=3, help='kernel size')
+    parser.add_argument('--kernel-size', type=int, default=3, help='conv. kernel size')
     parser.add_argument('--padding', type=int, default=1, help='padding parameter')
     parser.add_argument('--norm', type=str, default='batch', help='normalization type')
     parser.add_argument('--activation', type=str, default='relu', help='nonlinearity type')
@@ -116,7 +106,7 @@ if __name__ == '__main__':
     parser.add_argument('--beta-range', type=int, nargs='+', default=[1e-04, 0.02], help='beta range')
     parser.add_argument('--cosine-s', type=float, default=0.008, help='offset for cosine schedule')
     parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='sigmoid range')
-    parser.add_argument('--num-steps', type=int, default=1000, help='number of noise process steps')
+    parser.add_argument('--num-steps', type=int, default=1000, help='number of time steps')
 
     parser.add_argument('--max-epochs', type=int, default=2000, help='max. number of training epochs')
     args = parser.parse_args()
