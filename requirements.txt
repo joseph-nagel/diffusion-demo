@@ -3,6 +3,7 @@ pandas
 torch
 torchvision
 pytorch-lightning
+tensorboard
 scikit-learn
 matplotlib
 notebook
