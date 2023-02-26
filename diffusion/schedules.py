@@ -4,7 +4,7 @@ import torch
 
 
 def make_beta_schedule(num_steps,
-                       mode='linear',
+                       mode='cosine',
                        beta_range=(1e-04, 0.02),
                        cosine_s=0.008,
                        sigmoid_range=(-5, 5)):

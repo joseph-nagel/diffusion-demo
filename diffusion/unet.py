@@ -42,9 +42,9 @@ class UNet(nn.Module):
                     padding=1,
                     norm='batch',
                     activation='relu',
-                    embed_dim=10,
+                    embed_dim=100,
                     num_resblocks=3,
-                    upsample_mode='bilinear_conv'):
+                    upsample_mode='conv_transpose'):
         '''Create instance from architecture parameters.'''
 
         encoder = Encoder(in_channels=in_channels,
@@ -150,7 +150,7 @@ class Decoder(nn.Module):
                  norm='batch',
                  activation='relu',
                  embed_dim=None,
-                 upsample_mode='bilinear_conv'):
+                 upsample_mode='conv_transpose'):
         super().__init__()
 
         up_list = []

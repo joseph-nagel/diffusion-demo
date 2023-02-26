@@ -248,6 +248,8 @@ class DDPM2d(DDPM):
         Sigmoid range for sigmoid-based schedule.
     num_steps : int
         Number of time steps.
+    criterion : {'mse', 'mae'} or callable
+        Loss function criterion.
 
     '''
 
@@ -260,12 +262,13 @@ class DDPM2d(DDPM):
                  activation='relu',
                  embed_dim=100,
                  num_resblocks=3,
-                 upsample_mode='bilinear_conv',
+                 upsample_mode='conv_transpose',
                  beta_mode='cosine',
                  beta_range=[1e-04, 0.02],
                  cosine_s=0.008,
                  sigmoid_range=[-5, 5],
-                 num_steps=1000):
+                 num_steps=1000,
+                 criterion='mse'):
 
         # construct U-net model
         eps_model = UNet.from_params(in_channels=in_channels,
@@ -291,5 +294,5 @@ class DDPM2d(DDPM):
 
         # initialize DDPM class
         self.save_hyperparameters() # write hyperparams to checkpoints
-        super().__init__(eps_model=eps_model, betas=betas, criterion='mse')
+        super().__init__(eps_model=eps_model, betas=betas, criterion=criterion)
 
