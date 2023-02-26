@@ -40,30 +40,47 @@ def make_beta_schedule(num_steps,
 
     # linear beta
     if mode == 'linear':
-        beta_start, beta_end = beta_range
-        if beta_start > 0 and beta_end < 1:
+        if len(beta_range) == 2:
+            beta_start, beta_end = beta_range
+        else:
+            raise ValueError('Beta range should have two entries')
+
+        if all([(beta_bound > 0 and beta_bound < 1) for beta_bound in beta_range]):
             betas = torch.linspace(beta_start, beta_end, steps=num_steps)
         else:
             raise ValueError('Invalid beta range encountered')
+
     # quadratic beta
     elif mode == 'quadratic':
-        beta_start, beta_end = beta_range
-        if beta_start > 0 and beta_end < 1:
+        if len(beta_range) == 2:
+            beta_start, beta_end = beta_range
+        else:
+            raise ValueError('Beta range should have two entries')
+
+        if all([(beta_bound > 0 and beta_bound < 1) for beta_bound in beta_range]):
             betas = torch.linspace(beta_start**0.5, beta_end**0.5, steps=num_steps)**2
         else:
             raise ValueError('Invalid beta range encountered')
+
     # cosine-based alpha_bar
     elif mode == 'cosine':
         cosine_s = abs(cosine_s)
+
         ts = torch.arange(num_steps + 1)
         alphas_bar = torch.cos((ts / num_steps + cosine_s) / (1 + cosine_s) * torch.pi / 2)**2
         alphas_bar = alphas_bar / alphas_bar.max()
+
         betas = 1 - alphas_bar[1:] / alphas_bar[:-1]
         betas = torch.clip(betas, 0.0001, 0.9999)
+
     # sigmoid-based alpha_bar
     elif mode == 'sigmoid':
-        alphas_bar = torch.sigmoid(-torch.linspace(*sigmoid_range, num_steps + 1))
-        betas = 1 - (alphas_bar[1:] / alphas_bar[:-1])
+        if len(sigmoid_range) == 2:
+            alphas_bar = torch.sigmoid(-torch.linspace(*sigmoid_range, num_steps + 1))
+            betas = 1 - (alphas_bar[1:] / alphas_bar[:-1])
+        else:
+            raise ValueError('Sigmoid range should have two entries')
+
     else:
         raise ValueError('Unknown schedule type: {}'.format(mode))
 
