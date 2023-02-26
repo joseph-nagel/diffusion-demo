@@ -211,12 +211,12 @@ class DDPM(pl.LightningModule):
 
 class DDPM2d(DDPM):
     '''
-    DDPM for two-dim. problems.
+    DDPM for problems with two spatial dimensions.
 
     Summary
     -------
     This subclass facilitates the construction of a 2D DDPM.
-    It consists of U-net based noise model and a beta schedule.
+    It consists of U-net-based noise model and a beta schedule.
 
     Parameters
     ----------
@@ -279,12 +279,13 @@ class DDPM2d(DDPM):
                                      upsample_mode=upsample_mode)
 
         # create noise schedule
-        if beta_mode == 'quadratic':
-            beta_opts = {'beta_range': beta_range}
+        beta_opts = {}
+        if beta_mode in ('linear', 'quadratic'):
+            beta_opts['beta_range'] = beta_range
         elif beta_mode == 'cosine':
-            beta_opts = {'cosine_s': cosine_s}
+            beta_opts['cosine_s'] = cosine_s
         elif beta_mode == 'sigmoid':
-            beta_opts = {'sigmoid_range': sigmoid_range}
+            beta_opts['sigmoid_range'] = sigmoid_range
 
         betas = make_beta_schedule(num_steps=num_steps, mode=beta_mode, **beta_opts)
 
