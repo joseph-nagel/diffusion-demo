@@ -76,9 +76,13 @@ class LearnableSinusoidalEncoding(nn.Sequential):
         dense_list = []
         for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
             is_not_last = (idx < num_dense_layers - 1)
-            dense = make_dense(in_features,
-                               out_features,
-                               activation=activation if is_not_last else None) # set activation for all layers except the last
+
+            dense = make_dense(
+                in_features,
+                out_features,
+                activation=activation if is_not_last else None # set activation for all layers except the last
+            )
+
             dense_list.append(dense)
 
         super().__init__(sinusoidal_encoding, *dense_list)

@@ -21,7 +21,10 @@ class ConditionalDense(nn.Module):
         self.activation = make_activation(activation)
 
         if embed_dim is not None:
-            self.emb = LearnableSinusoidalEncoding([embed_dim, out_features])
+            self.emb = LearnableSinusoidalEncoding(
+                [embed_dim, out_features],
+                activation=None,
+            )
         else:
             self.emb = None
 
@@ -56,10 +59,14 @@ class ConditionalDenseModel(nn.Module):
         dense_list = []
         for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
             is_not_last = (idx < num_layers - 1)
-            dense = ConditionalDense(in_features,
-                                     out_features,
-                                     activation=activation if is_not_last else None, # set activation for all layers except the last
-                                     embed_dim=embed_dim) # set time embedding for all layers
+
+            dense = ConditionalDense(
+                in_features,
+                out_features,
+                activation=activation if is_not_last else None, # set activation for all layers except the last
+                embed_dim=embed_dim # set time embedding for all layers
+            )
+
             dense_list.append(dense)
 
         self.dense_layers = nn.ModuleList(dense_list)

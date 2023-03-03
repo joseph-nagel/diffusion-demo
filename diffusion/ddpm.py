@@ -29,13 +29,16 @@ class DDPM(pl.LightningModule):
         Beta parameter schedule.
     criterion : {'mse', 'mae'} or callable
         Loss function criterion.
+    lr : float
+        Optimizer learning rate.
 
     '''
 
     def __init__(self,
                  eps_model,
                  betas,
-                 criterion='mse'):
+                 criterion='mse',
+                 lr=1e-04):
         super().__init__()
 
         # set trainable epsilon model
@@ -50,6 +53,9 @@ class DDPM(pl.LightningModule):
             self.criterion = criterion
         else:
             raise ValueError('Criterion could not be determined')
+
+        # set initial learning rate
+        self.lr = abs(lr)
 
         # set scheduling parameters
         betas = torch.as_tensor(betas).view(-1) # note that betas[0] corresponds to t = 1.0
@@ -204,8 +210,9 @@ class DDPM(pl.LightningModule):
         self.log('test_loss', loss.item()) # Lightning automatically averages metrics over batches for testing
         return loss
 
+    # TODO: enable LR scheduling
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
 
 
@@ -250,17 +257,19 @@ class DDPM2d(DDPM):
         Number of time steps.
     criterion : {'mse', 'mae'} or callable
         Loss function criterion.
+    lr : float
+        Optimizer learning rate.
 
     '''
 
     def __init__(self,
                  in_channels=1,
-                 mid_channels=[8, 16, 32],
+                 mid_channels=[16, 32, 64],
                  kernel_size=3,
                  padding=1,
                  norm='batch',
-                 activation='relu',
-                 embed_dim=100,
+                 activation='leaky_relu',
+                 embed_dim=128,
                  num_resblocks=3,
                  upsample_mode='conv_transpose',
                  beta_mode='cosine',
@@ -268,18 +277,21 @@ class DDPM2d(DDPM):
                  cosine_s=0.008,
                  sigmoid_range=[-5, 5],
                  num_steps=1000,
-                 criterion='mse'):
+                 criterion='mse',
+                 lr=1e-04):
 
         # construct U-net model
-        eps_model = UNet.from_params(in_channels=in_channels,
-                                     mid_channels=mid_channels,
-                                     kernel_size=kernel_size,
-                                     padding=padding,
-                                     norm=norm,
-                                     activation=activation,
-                                     embed_dim=embed_dim,
-                                     num_resblocks=num_resblocks,
-                                     upsample_mode=upsample_mode)
+        eps_model = UNet.from_params(
+            in_channels=in_channels,
+            mid_channels=mid_channels,
+            kernel_size=kernel_size,
+            padding=padding,
+            norm=norm,
+            activation=activation,
+            embed_dim=embed_dim,
+            num_resblocks=num_resblocks,
+            upsample_mode=upsample_mode
+        )
 
         # create noise schedule
         beta_opts = {}
@@ -290,9 +302,15 @@ class DDPM2d(DDPM):
         elif beta_mode == 'sigmoid':
             beta_opts['sigmoid_range'] = sigmoid_range
 
-        betas = make_beta_schedule(num_steps=num_steps, mode=beta_mode, **beta_opts)
+        betas = make_beta_schedule(num_steps, mode=beta_mode, **beta_opts)
 
         # initialize DDPM class
         self.save_hyperparameters() # write hyperparams to checkpoints
-        super().__init__(eps_model=eps_model, betas=betas, criterion=criterion)
+
+        super().__init__(
+            eps_model=eps_model,
+            betas=betas,
+            criterion=criterion,
+            lr=lr
+        )
 

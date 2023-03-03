@@ -64,12 +64,14 @@ def make_conv(in_channels,
 
     '''
 
-    conv = nn.Conv2d(in_channels,
-                     out_channels,
-                     kernel_size=kernel_size,
-                     stride=stride,
-                     padding=padding,
-                     bias=bias) # the bias should be disabled if a batchnorm directly follows after the convolution
+    conv = nn.Conv2d(
+        in_channels,
+        out_channels,
+        kernel_size=kernel_size,
+        stride=stride,
+        padding=padding,
+        bias=bias # the bias should be disabled if a batchnorm directly follows after the convolution
+    )
 
     activation = make_activation(activation)
     norm = make_norm(norm, num_features=out_channels)
@@ -82,7 +84,7 @@ def make_conv(in_channels,
 
 def make_activation(mode):
     '''Create activation.'''
-    if mode is None:
+    if mode is None or mode == 'none':
         activation = nn.Identity()
     elif mode == 'sigmoid':
         activation = nn.Sigmoid()
@@ -105,7 +107,7 @@ def make_activation(mode):
 
 def make_norm(mode, num_features):
     '''Create normalization.'''
-    if mode is None:
+    if mode is None or mode == 'none':
         norm = nn.Identity()
     elif mode == 'batch':
         norm = nn.BatchNorm2d(num_features)

@@ -19,23 +19,27 @@ class DoubleConv(nn.Module):
                  activation='relu'):
         super().__init__()
 
-        self.conv_block1 = make_conv(in_channels,
-                                     out_channels,
-                                     kernel_size=kernel_size,
-                                     stride=1,
-                                     padding=padding,
-                                     bias=bias,
-                                     norm=norm,
-                                     activation=activation)
+        self.conv_block1 = make_conv(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=1,
+            padding=padding,
+            bias=bias,
+            norm=norm,
+            activation=activation
+        )
 
-        self.conv_block2 = make_conv(out_channels,
-                                     out_channels,
-                                     kernel_size=kernel_size,
-                                     stride=1,
-                                     padding=padding,
-                                     bias=bias,
-                                     norm=norm,
-                                     activation=activation)
+        self.conv_block2 = make_conv(
+            out_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=1,
+            padding=padding,
+            bias=bias,
+            norm=norm,
+            activation=activation
+        )
 
     def forward(self, x):
         x = self.conv_block1(x)
@@ -65,7 +69,9 @@ class ConditionalDoubleConv(DoubleConv):
                          activation=activation)
 
         if embed_dim is not None:
-            self.emb = LearnableSinusoidalEncoding([embed_dim, out_channels])
+            self.emb = LearnableSinusoidalEncoding(
+                [embed_dim, out_channels], activation=None
+            )
         else:
             self.emb = None
 
@@ -92,23 +98,28 @@ class ResidualBlock(nn.Module):
                  activation='relu'):
         super().__init__()
 
-        self.conv_block1 = make_conv(num_channels,
-                                     num_channels,
-                                     kernel_size=kernel_size,
-                                     stride=1,
-                                     padding='same',
-                                     bias=bias,
-                                     norm=norm,
-                                     activation=activation)
+        self.conv_block1 = make_conv(
+            num_channels,
+            num_channels,
+            kernel_size=kernel_size,
+            stride=1,
+            padding='same',
+            bias=bias,
+            norm=norm,
+            activation=activation
+        )
 
-        self.conv_block2 = make_conv(num_channels,
-                                     num_channels,
-                                     kernel_size=kernel_size,
-                                     stride=1,
-                                     padding='same',
-                                     bias=bias,
-                                     norm=norm,
-                                     activation=None) # remove activation from conv block
+        self.conv_block2 = make_conv(
+            num_channels,
+            num_channels,
+            kernel_size=kernel_size,
+            stride=1,
+            padding='same',
+            bias=bias,
+            norm=norm,
+            activation=None # remove activation from conv block
+        )
+
         self.activation = make_activation(activation) # create separate activation instead
 
     def forward(self, x):
@@ -137,7 +148,9 @@ class ConditionalResidualBlock(ResidualBlock):
                          activation=activation)
 
         if embed_dim is not None:
-            self.emb = LearnableSinusoidalEncoding([embed_dim, num_channels])
+            self.emb = LearnableSinusoidalEncoding(
+                [embed_dim, num_channels], activation=None
+            )
         else:
             self.emb = None
 
