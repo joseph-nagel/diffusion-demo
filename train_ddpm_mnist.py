@@ -7,7 +7,10 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import (
+    ModelCheckpoint,
+    StochasticWeightAveraging
+)
 
 from diffusion import DDPM2d
 
@@ -47,6 +50,8 @@ def parse_args():
     parser.add_argument('--max-epochs', type=int, default=1000, help='max. number of training epochs')
     parser.add_argument('--gradient-clip-val', type=float, default=0.2, help='gradient clipping value')
     parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
+
+    parser.add_argument('--swa-lrs', type=float, required=False, help='SWA learning rate')
 
     args = parser.parse_args()
     return args
@@ -117,20 +122,25 @@ def main(args):
     logger = TensorBoardLogger(args.save_dir, name=args.name, version=args.version)
     # logger.log_hyperparams(vars(args)) # save all (hyper)params
 
-    checkpoint_callback = ModelCheckpoint(
+    ckpt_callback = ModelCheckpoint(
         filename='best',
         monitor='val_loss',
         mode='min',
         save_top_k=1,
         save_last=True
     )
+    callbacks_list = [ckpt_callback]
+
+    if args.swa_lrs is not None:
+        swa_callback = StochasticWeightAveraging(swa_lrs=args.swa_lrs)
+        callbacks_list.append(swa_callback)
 
     accelerator = 'gpu' if torch.cuda.is_available() else 'cpu'
     gradient_clip_val = None if args.gradient_clip_val <= 0 else args.gradient_clip_val
 
     trainer = Trainer(
         logger=logger,
-        callbacks=[checkpoint_callback],
+        callbacks=callbacks_list,
         accelerator=accelerator,
         devices=1,
         max_epochs=args.max_epochs,
