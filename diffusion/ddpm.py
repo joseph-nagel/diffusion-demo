@@ -115,18 +115,18 @@ class DDPM(pl.LightningModule):
 
     def denoise_step(self, x, tids, random_sample=False):
         '''Perform single reverse process step.'''
-        # ensure (batch_size>=1, 1)-shaped tensor
-        tids = torch.as_tensor(tids, device=x.device).view(-1, 1)
-        t = tids + 1 # note that tidx = 0 corresponds to t = 1.0
+        # set up time variables
+        tids = torch.as_tensor(tids, device=x.device).view(-1, 1) # ensure (batch_size>=1, 1)-shaped tensor
+        ts = tids.to(x.dtype) + 1 # note that tidx = 0 corresponds to t = 1.0
 
         # predict eps based on noisy x and t
-        eps_pred = self.eps_model(x, t)
+        eps_pred = self.eps_model(x, ts)
 
         # compute mean
         p = 1 / self.alphas[tids].sqrt()
         q = self.betas[tids] / (1 - self.alphas_bar[tids]).sqrt()
 
-        missing_shape = [1] * (eps_pred.ndim - t.ndim)
+        missing_shape = [1] * (eps_pred.ndim - ts.ndim)
         p = p.view(*p.shape, *missing_shape)
         q = q.view(*q.shape, *missing_shape)
 
@@ -180,10 +180,11 @@ class DDPM(pl.LightningModule):
     def loss(self, x):
         '''Compute stochastic loss.'''
         # draw random time steps
-        ts = torch.randint(0, self.num_steps, size=(x.shape[0], 1), device=x.device)
+        tids = torch.randint(0, self.num_steps, size=(x.shape[0], 1), device=x.device)
+        ts = tids.to(x.dtype) + 1 # note that tidx = 0 corresponds to t = 1.0
 
         # perform forward process steps
-        x_noisy, eps = self.diffuse(x, ts, return_eps=True)
+        x_noisy, eps = self.diffuse(x, tids, return_eps=True)
 
         # predict eps based on noisy x and t
         eps_pred = self.eps_model(x_noisy, ts)
