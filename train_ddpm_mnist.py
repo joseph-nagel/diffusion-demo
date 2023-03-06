@@ -51,7 +51,10 @@ def parse_args():
     parser.add_argument('--gradient-clip-val', type=float, default=0.2, help='gradient clipping value')
     parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
 
-    parser.add_argument('--swa-lrs', type=float, required=False, help='SWA learning rate')
+    parser.add_argument('--swa-lrs', type=float, default=1e-05, help='SWA learning rate')
+    parser.add_argument('--swa-epoch-start', type=float, default=0.8, help='SWA start epoch')
+    parser.add_argument('--annealing-epochs', type=int, default=10, help='SWA annealing epochs')
+    parser.add_argument('--annealing-strategy', type=str, default='cos', help='SWA annealing strategy')
 
     args = parser.parse_args()
     return args
@@ -132,7 +135,12 @@ def main(args):
     callbacks_list = [ckpt_callback]
 
     if args.swa_lrs is not None:
-        swa_callback = StochasticWeightAveraging(swa_lrs=args.swa_lrs)
+        swa_callback = StochasticWeightAveraging(
+            swa_lrs=args.swa_lrs,
+            swa_epoch_start=args.swa_epoch_start,
+            annealing_epochs=args.annealing_epochs,
+            annealing_strategy=args.annealing_strategy
+        )
         callbacks_list.append(swa_callback)
 
     accelerator = 'gpu' if torch.cuda.is_available() else 'cpu'
