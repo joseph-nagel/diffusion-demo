@@ -85,7 +85,7 @@ class DDPM(pl.LightningModule):
 
     def diffuse_step(self, x, tidx):
         '''Simulate single forward process step.'''
-        beta = self.betas[tidx] # note that tidx = 0 corresponds to t = 1.0
+        beta = self.betas[tidx]
         eps = torch.randn_like(x)
         x_noisy = (1 - beta).sqrt() * x + beta.sqrt() * eps
         return x_noisy
@@ -193,20 +193,33 @@ class DDPM(pl.LightningModule):
         loss = self.criterion(eps_pred, eps)
         return loss
 
+    @staticmethod
+    def _get_features(batch):
+        '''Get only batch features and discard the rest.'''
+        if isinstance(batch, (tuple, list)):
+            x_batch = batch[0]
+        elif isinstance(batch, dict):
+            x_batch = batch['features']
+        elif isinstance(batch, torch.Tensor):
+            x_batch = batch
+        else:
+            raise TypeError('Invalid batch type encountered: {}'.format(type(batch)))
+        return x_batch
+
     def training_step(self, batch, batch_idx):
-        x_batch = batch[0] # get only features and discard the rest
+        x_batch = self._get_features(batch)
         loss = self.loss(x_batch)
         self.log('train_loss', loss.item()) # Lightning logs batch-wise metrics during training per default
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x_batch = batch[0] # get only features and discard the rest
+        x_batch = self._get_features(batch)
         loss = self.loss(x_batch)
         self.log('val_loss', loss.item()) # Lightning automatically averages metrics over batches for validation
         return loss
 
     def test_step(self, batch, batch_idx):
-        x_batch = batch[0] # get only features and discard the rest
+        x_batch = self._get_features(batch)
         loss = self.loss(x_batch)
         self.log('test_loss', loss.item()) # Lightning automatically averages metrics over batches for testing
         return loss
