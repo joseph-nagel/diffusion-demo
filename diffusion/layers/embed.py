@@ -26,10 +26,25 @@ class SinusoidalEncoding(nn.Module):
     def __init__(self, embed_dim):
         super().__init__()
 
-        if embed_dim % 2 != 0:
-            raise ValueError('Uneven dimensionality requested: {}'.format(embed_dim))
+        # set embedding dimension
+        embed_dim = abs(embed_dim)
+
+        if embed_dim < 2:
+            raise ValueError('At least two embedding dimensions required')
+        elif embed_dim % 2 != 0:
+            raise ValueError('Dimensionality has to be an even number')
 
         self.embed_dim = embed_dim
+
+        # create angular frequencies
+        omega = self._make_frequencies()
+        self.register_buffer('omega', omega)
+
+    def _make_frequencies(self):
+        '''Create angular frequencies.'''
+        i = torch.arange(self.embed_dim // 2).view(1, -1)
+        omega = 1 / (10000 ** (2 * i / self.embed_dim))
+        return omega
 
     def forward(self, t):
         # ensure (batch_size>=1, 1)-shaped tensor
@@ -41,12 +56,9 @@ class SinusoidalEncoding(nn.Module):
         device = t.device
         batch_size = t.shape[0]
 
-        i = torch.arange(self.embed_dim // 2, device=device).view(1, -1)
-        aux = t / (10000 ** (2*i / self.embed_dim))
-
         emb = torch.zeros(batch_size, self.embed_dim, device=device)
-        emb[:,0::2] = torch.sin(aux)
-        emb[:,1::2] = torch.cos(aux)
+        emb[:,0::2] = torch.sin(self.omega * t)
+        emb[:,1::2] = torch.cos(self.omega * t)
         return emb
 
 
@@ -58,6 +70,13 @@ class LearnableSinusoidalEncoding(nn.Sequential):
     -------
     Multiple FC layers are stacked after a sinusoidal encoding.
     This represents a learnable variant of the position embedding.
+
+    Parameters
+    ----------
+    num_features : list of ints
+        List of layer-specific feature numbers.
+    activation : None or str
+        Determines the nonlinearity for all layers but the last.
 
     '''
 
