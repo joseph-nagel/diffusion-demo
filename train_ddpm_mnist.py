@@ -45,13 +45,13 @@ def parse_args():
     parser.add_argument('--num-steps', type=int, default=1000, help='number of time steps')
 
     parser.add_argument('--criterion', type=str, default='mse', help='loss function criterion')
-    parser.add_argument('--lr', type=float, default=1e-04, help='optimizer learning rate')
+    parser.add_argument('--lr', type=float, default=1e-03, help='optimizer learning rate')
 
     parser.add_argument('--max-epochs', type=int, default=1000, help='max. number of training epochs')
-    parser.add_argument('--gradient-clip-val', type=float, default=0.2, help='gradient clipping value')
+    parser.add_argument('--gradient-clip-val', type=float, default=0.5, help='gradient clipping value')
     parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
 
-    parser.add_argument('--swa-lrs', type=float, default=1e-05, help='SWA learning rate')
+    parser.add_argument('--swa-lrs', type=float, default=1e-04, help='SWA learning rate')
     parser.add_argument('--swa-epoch-start', type=float, default=0.8, help='SWA start epoch')
     parser.add_argument('--annealing-epochs', type=int, default=10, help='SWA annealing epochs')
     parser.add_argument('--annealing-strategy', type=str, default='cos', help='SWA annealing strategy')
@@ -134,7 +134,7 @@ def main(args):
     )
     callbacks_list = [ckpt_callback]
 
-    if args.swa_lrs is not None:
+    if args.swa_lrs > 0:
         swa_callback = StochasticWeightAveraging(
             swa_lrs=args.swa_lrs,
             swa_epoch_start=args.swa_epoch_start,
@@ -144,7 +144,7 @@ def main(args):
         callbacks_list.append(swa_callback)
 
     accelerator = 'gpu' if torch.cuda.is_available() else 'cpu'
-    gradient_clip_val = None if args.gradient_clip_val <= 0 else args.gradient_clip_val
+    gradient_clip_val = args.gradient_clip_val if args.gradient_clip_val > 0 else None
 
     trainer = Trainer(
         logger=logger,
