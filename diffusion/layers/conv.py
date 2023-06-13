@@ -68,9 +68,11 @@ class ConditionalDoubleConv(DoubleConv):
                          norm=norm,
                          activation=activation)
 
+        # create multi-layer positional embedding
         if embed_dim is not None:
             self.emb = LearnableSinusoidalEncoding(
-                [embed_dim, out_channels], activation=None
+                [embed_dim, out_channels, out_channels],
+                activation=activation
             )
         else:
             self.emb = None
@@ -147,9 +149,11 @@ class ConditionalResidualBlock(ResidualBlock):
                          norm=norm,
                          activation=activation)
 
+        # create multi-layer positional embedding
         if embed_dim is not None:
             self.emb = LearnableSinusoidalEncoding(
-                [embed_dim, num_channels], activation=None
+                [embed_dim, num_channels, num_channels],
+                activation=activation
             )
         else:
             self.emb = None

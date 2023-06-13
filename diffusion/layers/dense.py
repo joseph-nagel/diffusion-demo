@@ -20,10 +20,11 @@ class ConditionalDense(nn.Module):
 
         self.activation = make_activation(activation)
 
+        # create multi-layer positional embedding
         if embed_dim is not None:
             self.emb = LearnableSinusoidalEncoding(
-                [embed_dim, out_features],
-                activation=None,
+                [embed_dim, out_features, out_features],
+                activation=activation
             )
         else:
             self.emb = None
