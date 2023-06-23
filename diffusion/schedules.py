@@ -20,7 +20,10 @@ def make_beta_schedule(num_steps,
     Alternatively, one may impose a schedule on the alpha_bar parameters.
     In the cosine-based approach from https://arxiv.org/abs/2102.09672,
     the betas are calculated for predefined values of alpha_bar.
+
     An analogous sigmoid-based approach is also implemented.
+    In contrast to the approach in https://arxiv.org/abs/2212.11972,
+    the sigmoid-curve is assigned to the square root of alpha_bar.
 
     Parameters
     ----------
@@ -34,7 +37,7 @@ def make_beta_schedule(num_steps,
         Offset parameter for cosine-based alpha_bar.
     sigmoid_range : (float, float)
         Input value range the sigmoid is evaluated for
-        in the corresponding alpha_bar schedule.
+        in the corresponding sqrt.(alpha_bar) schedule.
 
     '''
 
@@ -73,10 +76,11 @@ def make_beta_schedule(num_steps,
         betas = 1 - alphas_bar[1:] / alphas_bar[:-1]
         betas = torch.clip(betas, 0.0001, 0.9999)
 
-    # sigmoid-based alpha_bar
+    # sigmoid-based sqrt.(alpha_bar)
     elif mode == 'sigmoid':
         if len(sigmoid_range) == 2:
-            alphas_bar = torch.sigmoid(-torch.linspace(*sigmoid_range, num_steps + 1))
+            ts = torch.linspace(*sigmoid_range, num_steps + 1)
+            alphas_bar = torch.sigmoid(-ts)**2
             betas = 1 - (alphas_bar[1:] / alphas_bar[:-1])
         else:
             raise ValueError('Sigmoid range should have two entries')

@@ -99,7 +99,7 @@ class DDPM(pl.LightningModule):
         return x_noisy
 
     def diffuse(self, x0, tids, return_eps=False):
-        '''Simulate different forward process steps.'''
+        '''Simulate multiple forward steps at once.'''
         alpha_bar = self.alphas_bar[tids]
         eps = torch.randn_like(x0)
 
