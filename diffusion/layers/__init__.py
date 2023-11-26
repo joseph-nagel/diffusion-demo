@@ -17,19 +17,17 @@ from . import dense
 from . import embed
 from . import utils
 
+
 from .attention import SelfAttention
 
 from .conv import (
     DoubleConv,
-    ConditionalDoubleConv,
+    CondDoubleConv,
     ResidualBlock,
-    ConditionalResidualBlock
+    CondResidualBlock
 )
 
-from .dense import (
-    ConditionalDense,
-    ConditionalDenseModel
-)
+from .dense import CondDense
 
 from .embed import (
     SinusoidalEncoding,

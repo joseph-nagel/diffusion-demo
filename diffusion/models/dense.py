@@ -1,0 +1,42 @@
+'''Fully connected model.'''
+
+import torch.nn as nn
+
+from ..layers import CondDense
+
+
+class CondDenseModel(nn.Module):
+    '''Conditional fully connected model.'''
+
+    def __init__(self,
+                 num_features,
+                 activation='leaky_relu',
+                 embed_dim=None):
+
+        super().__init__()
+
+        if len(num_features) < 2:
+            raise ValueError('Number of features needs at least two entries')
+
+        num_layers = len(num_features) - 1
+
+        dense_list = []
+        for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
+            is_not_last = (idx < num_layers - 1)
+
+            dense = CondDense(
+                in_features,
+                out_features,
+                activation=activation if is_not_last else None, # set activation for all layers except the last
+                embed_dim=embed_dim # set time embedding for all layers
+            )
+
+            dense_list.append(dense)
+
+        self.dense_layers = nn.ModuleList(dense_list)
+
+    def forward(self, x, t):
+        for dense in self.dense_layers:
+            x = dense(x, t)
+        return x
+

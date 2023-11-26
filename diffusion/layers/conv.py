@@ -16,7 +16,8 @@ class DoubleConv(nn.Module):
                  padding=1,
                  bias=True,
                  norm='batch',
-                 activation='relu'):
+                 activation='leaky_relu'):
+
         super().__init__()
 
         self.conv_block1 = make_conv(
@@ -47,8 +48,8 @@ class DoubleConv(nn.Module):
         return x
 
 
-class ConditionalDoubleConv(DoubleConv):
-    '''Double convolution block with position conditioning.'''
+class CondDoubleConv(DoubleConv):
+    '''Double conv. block with position conditioning.'''
 
     def __init__(self,
                  in_channels,
@@ -57,7 +58,7 @@ class ConditionalDoubleConv(DoubleConv):
                  padding=1,
                  bias=True,
                  norm='batch',
-                 activation='relu',
+                 activation='leaky_relu',
                  embed_dim=None):
 
         super().__init__(in_channels,
@@ -97,7 +98,8 @@ class ResidualBlock(nn.Module):
                  kernel_size=3, # the classical resblock has a kernel size of 3
                  bias=True,
                  norm='batch',
-                 activation='relu'):
+                 activation='leaky_relu'):
+
         super().__init__()
 
         self.conv_block1 = make_conv(
@@ -132,7 +134,7 @@ class ResidualBlock(nn.Module):
         return out
 
 
-class ConditionalResidualBlock(ResidualBlock):
+class CondResidualBlock(ResidualBlock):
     '''Residual block with position conditioning.'''
 
     def __init__(self,
@@ -140,7 +142,7 @@ class ConditionalResidualBlock(ResidualBlock):
                  kernel_size=3, # the classical resblock has a kernel size of 3
                  bias=True,
                  norm='batch',
-                 activation='relu',
+                 activation='leaky_relu',
                  embed_dim=None):
 
         super().__init__(num_channels,

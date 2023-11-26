@@ -3,10 +3,7 @@
 import torch
 import torch.nn as nn
 
-from .layers import (
-    ConditionalDoubleConv,
-    ConditionalResidualBlock
-)
+from ..layers import CondDoubleConv, CondResidualBlock
 
 
 class UNet(nn.Module):
@@ -28,6 +25,7 @@ class UNet(nn.Module):
                  encoder,
                  decoder,
                  bottleneck=None):
+
         super().__init__()
 
         self.encoder = encoder
@@ -37,7 +35,7 @@ class UNet(nn.Module):
     @classmethod
     def from_params(cls,
                     in_channels=1,
-                    mid_channels=[16, 32, 64],
+                    mid_channels=(16, 32, 64),
                     kernel_size=3,
                     padding=1,
                     norm='batch',
@@ -47,7 +45,7 @@ class UNet(nn.Module):
                     upsample_mode='conv_transpose'):
         '''Create instance from architecture parameters.'''
 
-        encoder = Encoder(
+        encoder = UNetEncoder(
             in_channels=in_channels,
             mid_channels=mid_channels,
             kernel_size=kernel_size,
@@ -58,7 +56,7 @@ class UNet(nn.Module):
             embed_dim=embed_dim
         )
 
-        decoder = Decoder(
+        decoder = UNetDecoder(
             mid_channels=mid_channels[::-1],
             out_channels=in_channels,
             kernel_size=kernel_size,
@@ -70,7 +68,7 @@ class UNet(nn.Module):
             upsample_mode=upsample_mode
         )
 
-        bottleneck = Bottleneck(
+        bottleneck = UNetBottleneck(
             num_resblocks=num_resblocks,
             num_channels=mid_channels[-1],
             kernel_size=3, # fix the kernel size to 3, which is its classical value
@@ -91,7 +89,7 @@ class UNet(nn.Module):
         return y
 
 
-class Encoder(nn.Module):
+class UNetEncoder(nn.Module):
     '''Conditional U-net encoder.'''
 
     def __init__(self,
@@ -103,9 +101,10 @@ class Encoder(nn.Module):
                  norm='batch',
                  activation='leaky_relu',
                  embed_dim=None):
+
         super().__init__()
 
-        self.first_conv = ConditionalDoubleConv(
+        self.first_conv = CondDoubleConv(
             in_channels=in_channels,
             out_channels=mid_channels[0],
             kernel_size=kernel_size,
@@ -121,7 +120,7 @@ class Encoder(nn.Module):
 
             down = nn.MaxPool2d(kernel_size=pooling)
 
-            conv = ConditionalDoubleConv(
+            conv = CondDoubleConv(
                 in_channels=ch1,
                 out_channels=ch2,
                 kernel_size=kernel_size,
@@ -151,7 +150,7 @@ class Encoder(nn.Module):
         return x_list
 
 
-class Decoder(nn.Module):
+class UNetDecoder(nn.Module):
     '''Conditional U-net decoder.'''
 
     def __init__(self,
@@ -164,6 +163,7 @@ class Decoder(nn.Module):
                  activation='leaky_relu',
                  embed_dim=None,
                  upsample_mode='conv_transpose'):
+
         super().__init__()
 
         up_list = []
@@ -208,7 +208,7 @@ class Decoder(nn.Module):
             else:
                 raise ValueError('Unknown upsample mode: {}'.format(upsample_mode))
 
-            conv = ConditionalDoubleConv(
+            conv = CondDoubleConv(
                 in_channels=2*ch2, # reserve channels for concatenation skip connection
                 out_channels=ch2,
                 kernel_size=kernel_size,
@@ -244,7 +244,7 @@ class Decoder(nn.Module):
         return y
 
 
-class Bottleneck(nn.Module):
+class UNetBottleneck(nn.Module):
     '''Conditional U-net bottleneck.'''
 
     def __init__(self,
@@ -254,11 +254,12 @@ class Bottleneck(nn.Module):
                  norm='batch',
                  activation='leaky_relu',
                  embed_dim=None):
+
         super().__init__()
 
         resblocks_list = []
         for _ in range(num_resblocks):
-            resblock = ConditionalResidualBlock(
+            resblock = CondResidualBlock(
                 num_channels,
                 kernel_size=kernel_size,
                 norm=norm,

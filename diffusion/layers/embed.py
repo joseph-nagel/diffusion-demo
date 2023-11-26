@@ -80,7 +80,7 @@ class LearnableSinusoidalEncoding(nn.Sequential):
 
     '''
 
-    def __init__(self, num_features, activation='relu'):
+    def __init__(self, num_features, activation='leaky_relu'):
 
         if len(num_features) < 2:
             raise ValueError('Number of features needs at least two entries')

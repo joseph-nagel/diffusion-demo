@@ -6,14 +6,15 @@ from .embed import LearnableSinusoidalEncoding
 from .utils import make_activation
 
 
-class ConditionalDense(nn.Module):
+class CondDense(nn.Module):
     '''Conditional fully connected layer.'''
 
     def __init__(self,
                  in_features,
                  out_features,
-                 activation='relu',
+                 activation='leaky_relu',
                  embed_dim=None):
+
         super().__init__()
 
         self.linear = nn.Linear(in_features, out_features)
@@ -41,39 +42,4 @@ class ConditionalDense(nn.Module):
             out = self.activation(out)
 
         return out
-
-
-class ConditionalDenseModel(nn.Module):
-    '''Conditional fully connected model.'''
-
-    def __init__(self,
-                 num_features,
-                 activation='relu',
-                 embed_dim=None):
-        super().__init__()
-
-        if len(num_features) < 2:
-            raise ValueError('Number of features needs at least two entries')
-
-        num_layers = len(num_features) - 1
-
-        dense_list = []
-        for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
-            is_not_last = (idx < num_layers - 1)
-
-            dense = ConditionalDense(
-                in_features,
-                out_features,
-                activation=activation if is_not_last else None, # set activation for all layers except the last
-                embed_dim=embed_dim # set time embedding for all layers
-            )
-
-            dense_list.append(dense)
-
-        self.dense_layers = nn.ModuleList(dense_list)
-
-    def forward(self, x, t):
-        for dense in self.dense_layers:
-            x = dense(x, t)
-        return x
 

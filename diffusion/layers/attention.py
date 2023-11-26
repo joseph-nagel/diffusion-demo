@@ -51,8 +51,10 @@ class SelfAttention(nn.Module):
 
         # compute attention
         attention = torch.bmm(q.transpose(1, 2), k) # (b, h*w, h*w)
+
         if self.scale is not None:
             attention = attention / self.scale
+
         attention = torch.softmax(attention, dim=1) # (b, h*w, h*w)
         attention = torch.bmm(v, attention) # (b, c, h*w)
 
