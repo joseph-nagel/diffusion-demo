@@ -1,10 +1,9 @@
-'''DDPM training on MNIST.'''
+'''DDPM training on swiss roll data.'''
 
 import argparse
 
 import torch
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+from torch.utils.data import TensorDataset, DataLoader
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import (
@@ -12,7 +11,10 @@ from pytorch_lightning.callbacks import (
     StochasticWeightAveraging
 )
 
-from diffusion import DDPM2d
+from diffusion import (
+    make_swissroll_2d,
+    DDPMTab
+)
 
 
 def parse_args():
@@ -20,29 +22,27 @@ def parse_args():
 
     parser.add_argument('--ckpt-file', type=str, required=False, help='checkpoint for resuming')
 
-    parser.add_argument('--data-dir', type=str, default='run/data/', help='data dir')
-
     parser.add_argument('--save-dir', type=str, default='run/', help='save dir')
-    parser.add_argument('--name', type=str, default='mnist', help='experiment name')
+    parser.add_argument('--name', type=str, default='swissroll', help='experiment name')
     parser.add_argument('--version', type=str, required=False, help='experiment version')
+
+    parser.add_argument('--num-samples', type=int, default=2000, help='number of data samples')
+    parser.add_argument('--noise-level', type=float, default=0.5, help='noise level')
+    parser.add_argument('--scaling', type=float, default=0.1, help='scaling parameter')
+    parser.add_argument('--val-size', type=float, default=0.2, help='validation set size')
 
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--num-workers', type=int, default=0, help='number of workers')
 
-    parser.add_argument('--mid-channels', type=int, nargs='+', default=[16, 32, 64], help='channel numbers')
-    parser.add_argument('--kernel-size', type=int, default=3, help='conv. kernel size')
-    parser.add_argument('--padding', type=int, default=1, help='padding parameter')
-    parser.add_argument('--norm', type=str, default='batch', help='normalization type')
+    parser.add_argument('--mid-features', type=int, nargs='+', default=[128, 128, 128], help='feature numbers')
     parser.add_argument('--activation', type=str, default='leaky_relu', help='nonlinearity type')
     parser.add_argument('--embed-dim', type=int, default=128, help='embedding dimension')
-    parser.add_argument('--num-resblocks', type=int, default=3, help='number of residual blocks')
-    parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='conv. upsampling mode')
 
     parser.add_argument('--beta-mode', type=str, default='cosine', help='beta schedule mode')
     parser.add_argument('--beta-range', type=int, nargs='+', default=[1e-04, 0.02], help='beta range')
     parser.add_argument('--cosine-s', type=float, default=0.008, help='offset for cosine schedule')
     parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='sigmoid range')
-    parser.add_argument('--num-steps', type=int, default=1000, help='number of time steps')
+    parser.add_argument('--num-steps', type=int, default=500, help='number of time steps')
 
     parser.add_argument('--criterion', type=str, default='mse', help='loss function criterion')
     parser.add_argument('--lr', type=float, default=1e-03, help='optimizer learning rate')
@@ -64,24 +64,16 @@ def parse_args():
 def main(args):
 
     # create datasets
-    transform = transforms.Compose([
-        transforms.RandomRotation(5),
-        transforms.ToTensor()
-    ]) # TODO: refine data augmentation
-
-    train_set = datasets.MNIST(
-        args.data_dir,
-        train=True,
-        transform=transform,
-        download=True
+    x_train, x_val = make_swissroll_2d(
+        num_samples=args.num_samples,
+        noise_level=args.noise_level,
+        scaling=args.scaling,
+        val_size=args.val_size,
+        as_tensor=True
     )
 
-    val_set = datasets.MNIST(
-        args.data_dir,
-        train=False,
-        transform=transforms.ToTensor(),
-        download=True
-    )
+    train_set = TensorDataset(x_train)
+    val_set = TensorDataset(x_val)
 
     # create data loaders
     train_loader = DataLoader(
@@ -103,16 +95,11 @@ def main(args):
     )
 
     # initialize model
-    ddpm = DDPM2d(
-        in_channels=1,
-        mid_channels=args.mid_channels,
-        kernel_size=args.kernel_size,
-        padding=args.padding,
-        norm=args.norm,
+    ddpm = DDPMTab(
+        in_features=2,
+        mid_features=args.mid_features,
         activation=args.activation,
         embed_dim=args.embed_dim,
-        num_resblocks=args.num_resblocks,
-        upsample_mode=args.upsample_mode,
         beta_mode=args.beta_mode,
         beta_range=args.beta_range,
         cosine_s=args.cosine_s,

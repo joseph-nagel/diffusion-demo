@@ -1,7 +1,6 @@
 __pycache__/
 .ipynb_checkpoints/
 
-data/
-mnist/
-lightning_logs
+run/
+lightning_logs/
 

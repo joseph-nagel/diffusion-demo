@@ -11,17 +11,20 @@ Modules
 ddpm : Denoising diffusion models.
 layers : Model layers.
 models : Prediction models.
+utils : Some utilities.
 
 '''
 
 from . import ddpm
 from . import layers
 from . import models
+from . import utils
 
 
 from .ddpm import (
     DDPM,
     DDPM2d,
+    DDPMTab,
     make_beta_schedule
 )
 
@@ -47,4 +50,6 @@ from .models import (
     UNetDecoder,
     UNetBottleneck
 )
+
+from .utils import make_swissroll_2d
 

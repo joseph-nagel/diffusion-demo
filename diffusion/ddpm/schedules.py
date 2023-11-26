@@ -30,14 +30,14 @@ def make_beta_schedule(num_steps,
     num_steps : int
         Number of time steps.
     mode : {'linear', 'quadratic', 'cosine', 'sigmoid'}
-        Determines the scheduling type.
+        Determines the noise scheduling type.
     beta_range : (float, float)
         Beta range for linear and quadratic schedules.
     cosine_s : float
         Offset parameter for cosine-based alpha_bar.
     sigmoid_range : (float, float)
-        Input value range the sigmoid is evaluated for
-        in the corresponding sqrt.(alpha_bar) schedule.
+        Input range for evaluating the sigmoid in
+        the corresponding sqrt.(alpha_bar) schedule.
 
     '''
 

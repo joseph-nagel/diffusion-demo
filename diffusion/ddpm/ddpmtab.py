@@ -1,39 +1,29 @@
-'''DDPM for 2D data.'''
+'''DDPM for tabular data.'''
 
 from .base import DDPM
 from .schedules import make_beta_schedule
-from ..models import UNet
+from ..models import CondDenseModel
 
 
-class DDPM2d(DDPM):
+class DDPMTab(DDPM):
     '''
-    DDPM for problems with two spatial dimensions.
+    DDPM for problems with tabular data.
 
     Summary
     -------
-    This subclass facilitates the construction of a 2D DDPM.
-    It employs a U-net-based noise model and a beta schedule.
+    A DDPM for tabular data structures is implemented.
+    It uses a fully connected model for predicting the noise.
 
     Parameters
     ----------
-    in_channels : int
-        Number of input channels.
-    mid_channels : list or tuple of ints
-        Hidden layer channel numbers.
-    kernel_size : int
-        Convolutional kernel size.
-    padding : int
-        Padding parameter.
-    norm : str
-        Normalization type.
+    in_features : int
+        Number of input features.
+    mid_features : list or tuple of ints
+        Hidden layer feature numbers.
     activation : str
         Nonlinearity type.
     embed_dim : int
         Embedding dimension.
-    num_resblocks : int
-        Number of residual blocks.
-    upsample_mode : str
-        Convolutional upsampling mode.
     beta_mode : str
         Determines the noise scheduling type.
     beta_range: (float, float)
@@ -53,34 +43,25 @@ class DDPM2d(DDPM):
     '''
 
     def __init__(self,
-                 in_channels=1,
-                 mid_channels=(16, 32, 64),
-                 kernel_size=3,
-                 padding=1,
-                 norm='batch',
+                 in_features=2,
+                 mid_features=(128, 128, 128),
                  activation='leaky_relu',
                  embed_dim=128,
-                 num_resblocks=3,
-                 upsample_mode='conv_transpose',
                  beta_mode='cosine',
                  beta_range=(1e-04, 0.02),
                  cosine_s=0.008,
                  sigmoid_range=(-5, 5),
-                 num_steps=1000,
+                 num_steps=500,
                  criterion='mse',
                  lr=1e-04):
 
-        # construct U-net model
-        eps_model = UNet.from_params(
-            in_channels=in_channels,
-            mid_channels=mid_channels,
-            kernel_size=kernel_size,
-            padding=padding,
-            norm=norm,
+        # construct dense model
+        num_features = (in_features, *mid_features, in_features)
+
+        eps_model = CondDenseModel(
+            num_features=num_features,
             activation=activation,
-            embed_dim=embed_dim,
-            num_resblocks=num_resblocks,
-            upsample_mode=upsample_mode
+            embed_dim=embed_dim
         )
 
         # create noise schedule
