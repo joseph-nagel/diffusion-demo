@@ -34,7 +34,7 @@ class DDPM2d(DDPM):
         Number of residual blocks.
     upsample_mode : str
         Convolutional upsampling mode.
-    beta_mode : str
+    schedule : str
         Determines the noise scheduling type.
     beta_range: (float, float)
         Beta range for linear and quadratic schedules.
@@ -62,7 +62,7 @@ class DDPM2d(DDPM):
                  embed_dim=128,
                  num_resblocks=3,
                  upsample_mode='conv_transpose',
-                 beta_mode='cosine',
+                 schedule='cosine',
                  beta_range=(1e-04, 0.02),
                  cosine_s=0.008,
                  sigmoid_range=(-5, 5),
@@ -86,7 +86,7 @@ class DDPM2d(DDPM):
         # create noise schedule
         betas = make_beta_schedule(
             num_steps,
-            mode=beta_mode,
+            mode=schedule,
             beta_range=beta_range,
             cosine_s=cosine_s,
             sigmoid_range=sigmoid_range

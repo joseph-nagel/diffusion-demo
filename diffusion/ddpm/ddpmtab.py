@@ -24,7 +24,7 @@ class DDPMTab(DDPM):
         Nonlinearity type.
     embed_dim : int
         Embedding dimension.
-    beta_mode : str
+    schedule : str
         Determines the noise scheduling type.
     beta_range: (float, float)
         Beta range for linear and quadratic schedules.
@@ -47,7 +47,7 @@ class DDPMTab(DDPM):
                  mid_features=(128, 128, 128),
                  activation='leaky_relu',
                  embed_dim=128,
-                 beta_mode='cosine',
+                 schedule='cosine',
                  beta_range=(1e-04, 0.02),
                  cosine_s=0.008,
                  sigmoid_range=(-5, 5),
@@ -67,7 +67,7 @@ class DDPMTab(DDPM):
         # create noise schedule
         betas = make_beta_schedule(
             num_steps,
-            mode=beta_mode,
+            mode=schedule,
             beta_range=beta_range,
             cosine_s=cosine_s,
             sigmoid_range=sigmoid_range

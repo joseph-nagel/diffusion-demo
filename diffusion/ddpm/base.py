@@ -2,10 +2,10 @@
 
 import torch
 import torch.nn as nn
-import pytorch_lightning as pl
+from lightning.pytorch import LightningModule
 
 
-class DDPM(pl.LightningModule):
+class DDPM(LightningModule):
     '''
     Plain vanilla DDPM module.
 

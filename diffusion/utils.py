@@ -23,16 +23,27 @@ def make_swissroll_2d(num_samples,
     x = scaling * x
 
     # split into train and val. set
-    x_train, x_val = train_test_split(x, test_size=val_size)
+    if val_size is not None:
+        x_train, x_val = train_test_split(x, test_size=val_size)
+    else:
+        x_train = x
+        x_val = None
 
     # set float precision
     x_train = x_train.astype(dtype)
-    x_val = x_val.astype(dtype)
+
+    if x_val is not None:
+        x_val = x_val.astype(dtype)
 
     # convert to tensors
     if as_tensor:
         x_train = torch.as_tensor(x_train)
-        x_val = torch.as_tensor(x_val)
 
-    return x_train, x_val
+        if x_val is not None:
+            x_val = torch.as_tensor(x_val)
+
+    if x_val is not None:
+        return x_train, x_val
+    else:
+        return x_train
 

@@ -1,14 +1,15 @@
 '''DDPM training on MNIST.'''
 
-import argparse
+from argparse import ArgumentParser
 
 import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from pytorch_lightning import Trainer
-from pytorch_lightning.loggers import TensorBoardLogger
-from pytorch_lightning.callbacks import (
+from lightning.pytorch import seed_everything, Trainer
+from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.callbacks import (
     ModelCheckpoint,
+    EarlyStopping,
     StochasticWeightAveraging
 )
 
@@ -16,15 +17,17 @@ from diffusion import DDPM2d
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
+
+    parser.add_argument('--random-seed', type=int, required=False, help='random seed')
 
     parser.add_argument('--ckpt-file', type=str, required=False, help='checkpoint for resuming')
-
-    parser.add_argument('--data-dir', type=str, default='run/data/', help='data dir')
 
     parser.add_argument('--save-dir', type=str, default='run/', help='save dir')
     parser.add_argument('--name', type=str, default='mnist', help='experiment name')
     parser.add_argument('--version', type=str, required=False, help='experiment version')
+
+    parser.add_argument('--data-dir', type=str, default='run/data/', help='data dir')
 
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--num-workers', type=int, default=0, help='number of workers')
@@ -38,7 +41,7 @@ def parse_args():
     parser.add_argument('--num-resblocks', type=int, default=3, help='number of residual blocks')
     parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='conv. upsampling mode')
 
-    parser.add_argument('--beta-mode', type=str, default='cosine', help='beta schedule mode')
+    parser.add_argument('--schedule', type=str, default='cosine', help='noise schedule mode')
     parser.add_argument('--beta-range', type=int, nargs='+', default=[1e-04, 0.02], help='beta range')
     parser.add_argument('--cosine-s', type=float, default=0.008, help='offset for cosine schedule')
     parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='sigmoid range')
@@ -48,13 +51,23 @@ def parse_args():
     parser.add_argument('--lr', type=float, default=1e-03, help='optimizer learning rate')
 
     parser.add_argument('--max-epochs', type=int, default=1000, help='max. number of training epochs')
-    parser.add_argument('--gradient-clip-val', type=float, default=0.5, help='gradient clipping value')
-    parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
+
+    parser.add_argument('--save-top', type=int, default=1, help='number of best models to save')
+    parser.add_argument('--save-every', type=int, default=50, help='regular checkpointing interval')
+
+    parser.add_argument('--patience', type=int, default=0, help='early stopping patience')
 
     parser.add_argument('--swa-lrs', type=float, default=1e-04, help='SWA learning rate')
     parser.add_argument('--swa-epoch-start', type=float, default=0.8, help='SWA start epoch')
     parser.add_argument('--annealing-epochs', type=int, default=10, help='SWA annealing epochs')
     parser.add_argument('--annealing-strategy', type=str, default='cos', help='SWA annealing strategy')
+
+    parser.add_argument('--gradient-clip-val', type=float, default=0.5, help='gradient clipping value')
+    parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
+
+    parser.add_argument('--gpu', dest='gpu', action='store_true', help='use GPU if available')
+    parser.add_argument('--cpu', dest='gpu', action='store_false', help='do not use GPU')
+    parser.set_defaults(gpu=True)
 
     args = parser.parse_args()
 
@@ -62,6 +75,13 @@ def parse_args():
 
 
 def main(args):
+
+    # set random seeds
+    if args.random_seed is not None:
+        _ = seed_everything(
+            args.random_seed,
+            workers=args.num_workers > 0
+        )
 
     # create datasets
     transform = transforms.Compose([
@@ -113,7 +133,7 @@ def main(args):
         embed_dim=args.embed_dim,
         num_resblocks=args.num_resblocks,
         upsample_mode=args.upsample_mode,
-        beta_mode=args.beta_mode,
+        schedule=args.schedule,
         beta_range=args.beta_range,
         cosine_s=args.cosine_s,
         sigmoid_range=args.sigmoid_range,
@@ -122,41 +142,67 @@ def main(args):
         lr=args.lr
     )
 
-    # create trainer
+    # set accelerator
+    if args.gpu:
+        accelerator = 'gpu' if torch.cuda.is_available() else 'cpu'
+    else:
+        accelerator = 'cpu'
+
+    # create logger
     logger = TensorBoardLogger(args.save_dir, name=args.name, version=args.version)
     # logger.log_hyperparams(vars(args)) # save all (hyper)params
 
-    ckpt_callback = ModelCheckpoint(
+    # set up checkpointing
+    save_top_ckpt = ModelCheckpoint(
         filename='best',
         monitor='val_loss',
         mode='min',
-        save_top_k=1,
+        save_top_k=args.save_top,
+    )
+
+    save_every_ckpt = ModelCheckpoint(
+        filename='{epoch}_{val_loss:.4f}',
+        save_top_k=-1,
+        every_n_epochs=args.save_every,
         save_last=True
     )
-    callbacks_list = [ckpt_callback]
 
+    callbacks = [save_top_ckpt, save_every_ckpt]
+
+    # set up early stopping
+    if args.patience > 0:
+        early_stopping = EarlyStopping('val_loss', patience=args.patience)
+        callbacks.append(early_stopping)
+
+    # set up weight averaging
     if args.swa_lrs > 0:
-        swa_callback = StochasticWeightAveraging(
+        swa = StochasticWeightAveraging(
             swa_lrs=args.swa_lrs,
             swa_epoch_start=args.swa_epoch_start,
             annealing_epochs=args.annealing_epochs,
             annealing_strategy=args.annealing_strategy
         )
-        callbacks_list.append(swa_callback)
+        callbacks.append(swa)
 
-    accelerator = 'gpu' if torch.cuda.is_available() else 'cpu'
-    gradient_clip_val = args.gradient_clip_val if args.gradient_clip_val > 0 else None
+    # set up gradient clipping
+    if args.gradient_clip_val > 0:
+        gradient_clip_val = args.gradient_clip_val
+        gradient_clip_algorithm = args.gradient_clip_algorithm
+    else:
+        gradient_clip_val = None
+        gradient_clip_algorithm = None
 
+    # initialize trainer
     trainer = Trainer(
-        logger=logger,
-        callbacks=callbacks_list,
         accelerator=accelerator,
         devices=1,
+        logger=logger,
+        callbacks=callbacks,
         max_epochs=args.max_epochs,
-        gradient_clip_val=gradient_clip_val,
-        gradient_clip_algorithm=args.gradient_clip_algorithm,
         log_every_n_steps=len(train_loader),
-        enable_progress_bar=True
+        gradient_clip_val=gradient_clip_val,
+        gradient_clip_algorithm=gradient_clip_algorithm,
+        deterministic=args.random_seed is not None
     )
 
     # check validation loss
