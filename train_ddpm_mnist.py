@@ -1,12 +1,13 @@
 '''DDPM training on MNIST.'''
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from lightning.pytorch import seed_everything, Trainer
-from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.loggers import TensorBoardLogger, MLFlowLogger
 from lightning.pytorch.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
@@ -21,13 +22,14 @@ def parse_args():
 
     parser.add_argument('--random-seed', type=int, required=False, help='random seed')
 
-    parser.add_argument('--ckpt-file', type=str, required=False, help='checkpoint for resuming')
+    parser.add_argument('--ckpt-file', type=Path, required=False, help='checkpoint for resuming')
 
-    parser.add_argument('--save-dir', type=str, default='run/', help='save dir')
+    parser.add_argument('--logger', type=str, default='tensorboard', help='logger')
+    parser.add_argument('--save-dir', type=Path, default='run/', help='save dir')
     parser.add_argument('--name', type=str, default='mnist', help='experiment name')
     parser.add_argument('--version', type=str, required=False, help='experiment version')
 
-    parser.add_argument('--data-dir', type=str, default='run/data/', help='data dir')
+    parser.add_argument('--data-dir', type=Path, default='run/data/', help='data dir')
 
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--num-workers', type=int, default=0, help='number of workers')
@@ -149,8 +151,21 @@ def main(args):
         accelerator = 'cpu'
 
     # create logger
-    logger = TensorBoardLogger(args.save_dir, name=args.name, version=args.version)
-    # logger.log_hyperparams(vars(args)) # save all (hyper)params
+    if args.logger == 'tensorboard':
+        logger = TensorBoardLogger(
+            args.save_dir,
+            name=args.name,
+            version=args.version
+        )
+    elif args.logger == 'mlflow':
+        logger = MLFlowLogger(
+            experiment_name=args.name,
+            run_name=args.version,
+            save_dir=args.save_dir / 'mlruns',
+            log_model=True
+        )
+    else:
+        raise ValueError('Unknown logger: {}'.format(args.logger))
 
     # set up checkpointing
     save_top_ckpt = ModelCheckpoint(

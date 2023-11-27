@@ -1,9 +1,9 @@
 numpy
-pandas
 torch
 torchvision
 lightning
 tensorboard
+mlflow
 scikit-learn
 matplotlib
 notebook

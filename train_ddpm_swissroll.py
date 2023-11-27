@@ -1,11 +1,12 @@
 '''DDPM training on Swiss roll data.'''
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 from lightning.pytorch import seed_everything, Trainer
-from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.loggers import TensorBoardLogger, MLFlowLogger
 from lightning.pytorch.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
@@ -20,9 +21,10 @@ def parse_args():
 
     parser.add_argument('--random-seed', type=int, default=12345, help='random seed')
 
-    parser.add_argument('--ckpt-file', type=str, required=False, help='checkpoint for resuming')
+    parser.add_argument('--ckpt-file', type=Path, required=False, help='checkpoint for resuming')
 
-    parser.add_argument('--save-dir', type=str, default='run/', help='save dir')
+    parser.add_argument('--logger', type=str, default='tensorboard', help='logger')
+    parser.add_argument('--save-dir', type=Path, default='run/', help='save dir')
     parser.add_argument('--name', type=str, default='swissroll', help='experiment name')
     parser.add_argument('--version', type=str, required=False, help='experiment version')
 
@@ -133,8 +135,21 @@ def main(args):
         accelerator = 'cpu'
 
     # create logger
-    logger = TensorBoardLogger(args.save_dir, name=args.name, version=args.version)
-    # logger.log_hyperparams(vars(args)) # save all (hyper)params
+    if args.logger == 'tensorboard':
+        logger = TensorBoardLogger(
+            args.save_dir,
+            name=args.name,
+            version=args.version
+        )
+    elif args.logger == 'mlflow':
+        logger = MLFlowLogger(
+            experiment_name=args.name,
+            run_name=args.version,
+            save_dir=args.save_dir / 'mlruns',
+            log_model=True
+        )
+    else:
+        raise ValueError('Unknown logger: {}'.format(args.logger))
 
     # set up checkpointing
     save_top_ckpt = ModelCheckpoint(
