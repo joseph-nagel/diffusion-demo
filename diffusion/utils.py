@@ -7,7 +7,7 @@ import torch
 
 def make_swissroll_2d(num_samples,
                       noise_level=0.5,
-                      scaling=0.1,
+                      scaling=0.15,
                       val_size=0.2,
                       dtype='float32',
                       as_tensor=True):

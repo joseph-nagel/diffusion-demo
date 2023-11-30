@@ -43,11 +43,11 @@ def parse_args():
     parser.add_argument('--num-resblocks', type=int, default=3, help='number of residual blocks')
     parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='conv. upsampling mode')
 
+    parser.add_argument('--num-steps', type=int, default=1000, help='number of time steps')
     parser.add_argument('--schedule', type=str, default='cosine', help='noise schedule mode')
     parser.add_argument('--beta-range', type=int, nargs='+', default=[1e-04, 0.02], help='beta range')
     parser.add_argument('--cosine-s', type=float, default=0.008, help='offset for cosine schedule')
     parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='sigmoid range')
-    parser.add_argument('--num-steps', type=int, default=1000, help='number of time steps')
 
     parser.add_argument('--criterion', type=str, default='mse', help='loss function criterion')
     parser.add_argument('--lr', type=float, default=1e-03, help='optimizer learning rate')
@@ -60,7 +60,7 @@ def parse_args():
     parser.add_argument('--patience', type=int, default=0, help='early stopping patience')
 
     parser.add_argument('--swa-lrs', type=float, default=1e-04, help='SWA learning rate')
-    parser.add_argument('--swa-epoch-start', type=float, default=0.8, help='SWA start epoch')
+    parser.add_argument('--swa-epoch-start', type=float, default=0.7, help='SWA start epoch')
     parser.add_argument('--annealing-epochs', type=int, default=10, help='SWA annealing epochs')
     parser.add_argument('--annealing-strategy', type=str, default='cos', help='SWA annealing strategy')
 
@@ -135,11 +135,11 @@ def main(args):
         embed_dim=args.embed_dim,
         num_resblocks=args.num_resblocks,
         upsample_mode=args.upsample_mode,
+        num_steps=args.num_steps,
         schedule=args.schedule,
         beta_range=args.beta_range,
         cosine_s=args.cosine_s,
         sigmoid_range=args.sigmoid_range,
-        num_steps=args.num_steps,
         criterion=args.criterion,
         lr=args.lr
     )

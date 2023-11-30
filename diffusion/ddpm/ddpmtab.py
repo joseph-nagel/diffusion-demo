@@ -24,6 +24,8 @@ class DDPMTab(DDPM):
         Nonlinearity type.
     embed_dim : int
         Embedding dimension.
+    num_steps : int
+        Number of time steps.
     schedule : str
         Determines the noise scheduling type.
     beta_range: (float, float)
@@ -33,8 +35,6 @@ class DDPMTab(DDPM):
     sigmoid_range : (float, float)
         Input range for evaluating the sigmoid in
         the corresponding sqrt.(alpha_bar) schedule.
-    num_steps : int
-        Number of time steps.
     criterion : {'mse', 'mae'} or callable
         Loss function criterion.
     lr : float
@@ -47,11 +47,11 @@ class DDPMTab(DDPM):
                  mid_features=(128, 128, 128),
                  activation='leaky_relu',
                  embed_dim=128,
+                 num_steps=500,
                  schedule='cosine',
                  beta_range=(1e-04, 0.02),
                  cosine_s=0.008,
                  sigmoid_range=(-5, 5),
-                 num_steps=500,
                  criterion='mse',
                  lr=1e-04):
 

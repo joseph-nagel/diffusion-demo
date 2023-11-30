@@ -34,6 +34,8 @@ class DDPM2d(DDPM):
         Number of residual blocks.
     upsample_mode : str
         Convolutional upsampling mode.
+    num_steps : int
+        Number of time steps.
     schedule : str
         Determines the noise scheduling type.
     beta_range: (float, float)
@@ -43,8 +45,6 @@ class DDPM2d(DDPM):
     sigmoid_range : (float, float)
         Input range for evaluating the sigmoid in
         the corresponding sqrt.(alpha_bar) schedule.
-    num_steps : int
-        Number of time steps.
     criterion : {'mse', 'mae'} or callable
         Loss function criterion.
     lr : float
@@ -62,11 +62,11 @@ class DDPM2d(DDPM):
                  embed_dim=128,
                  num_resblocks=3,
                  upsample_mode='conv_transpose',
+                 num_steps=1000,
                  schedule='cosine',
                  beta_range=(1e-04, 0.02),
                  cosine_s=0.008,
                  sigmoid_range=(-5, 5),
-                 num_steps=1000,
                  criterion='mse',
                  lr=1e-04):
 

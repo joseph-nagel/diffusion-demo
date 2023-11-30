@@ -28,9 +28,9 @@ def parse_args():
     parser.add_argument('--name', type=str, default='swissroll', help='experiment name')
     parser.add_argument('--version', type=str, required=False, help='experiment version')
 
-    parser.add_argument('--num-samples', type=int, default=2000, help='number of data samples')
+    parser.add_argument('--num-samples', type=int, default=3000, help='number of data samples')
     parser.add_argument('--noise-level', type=float, default=0.5, help='noise level')
-    parser.add_argument('--scaling', type=float, default=0.1, help='scaling parameter')
+    parser.add_argument('--scaling', type=float, default=0.15, help='scaling parameter')
     parser.add_argument('--val-size', type=float, default=0.2, help='validation set size')
 
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
@@ -40,11 +40,11 @@ def parse_args():
     parser.add_argument('--activation', type=str, default='leaky_relu', help='nonlinearity type')
     parser.add_argument('--embed-dim', type=int, default=128, help='embedding dimension')
 
-    parser.add_argument('--schedule', type=str, default='sigmoid', help='noise schedule mode')
+    parser.add_argument('--num-steps', type=int, default=500, help='number of time steps')
+    parser.add_argument('--schedule', type=str, default='cosine', help='noise schedule mode')
     parser.add_argument('--beta-range', type=int, nargs='+', default=[1e-04, 0.02], help='beta range')
     parser.add_argument('--cosine-s', type=float, default=0.008, help='offset for cosine schedule')
     parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='sigmoid range')
-    parser.add_argument('--num-steps', type=int, default=500, help='number of time steps')
 
     parser.add_argument('--criterion', type=str, default='mse', help='loss function criterion')
     parser.add_argument('--lr', type=float, default=1e-03, help='optimizer learning rate')
@@ -56,8 +56,8 @@ def parse_args():
 
     parser.add_argument('--patience', type=int, default=0, help='early stopping patience')
 
-    parser.add_argument('--swa-lrs', type=float, default=0.0, help='SWA learning rate')
-    parser.add_argument('--swa-epoch-start', type=float, default=0.8, help='SWA start epoch')
+    parser.add_argument('--swa-lrs', type=float, default=1e-04, help='SWA learning rate')
+    parser.add_argument('--swa-epoch-start', type=float, default=0.7, help='SWA start epoch')
     parser.add_argument('--annealing-epochs', type=int, default=10, help='SWA annealing epochs')
     parser.add_argument('--annealing-strategy', type=str, default='cos', help='SWA annealing strategy')
 
@@ -119,11 +119,11 @@ def main(args):
         mid_features=args.mid_features,
         activation=args.activation,
         embed_dim=args.embed_dim,
+        num_steps=args.num_steps,
         schedule=args.schedule,
         beta_range=args.beta_range,
         cosine_s=args.cosine_s,
         sigmoid_range=args.sigmoid_range,
-        num_steps=args.num_steps,
         criterion=args.criterion,
         lr=args.lr
     )
