@@ -1,5 +1,13 @@
 # PyTorch denoising diffusion demo
 
+<p>
+  <img src="assets/swissroll_forward.jpg" alt="Forward process diffusing data into noise" title="Forward diffusion process" width="700">
+</p>
+
+<p>
+  <img src="assets/swissroll_reverse.jpg" alt="Reverse process generating data from noise" title="Trained reverse process" width="700">
+</p>
+
 The repository contains a simple PyTorch-based demonstration of denoising diffusion models.
 It just aims at providing a basic understanding of this generative modeling approach.
 
