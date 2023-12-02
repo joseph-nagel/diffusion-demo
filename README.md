@@ -1,13 +1,5 @@
 # PyTorch denoising diffusion demo
 
-<p>
-  <img src="assets/swissroll_forward.jpg" alt="Forward process diffusing data into noise" title="Forward diffusion process" width="700">
-</p>
-
-<p>
-  <img src="assets/swissroll_reverse.jpg" alt="Reverse process generating data from noise" title="Trained reverse process" width="700">
-</p>
-
 The repository contains a simple PyTorch-based demonstration of denoising diffusion models.
 It just aims at providing a basic understanding of this generative modeling approach.
 
@@ -32,6 +24,14 @@ In this case, one can launch the training as `python train_ddpm_swissroll.py --l
 and set up a tracking server by `mlflow server --backend-store-uri file:./run/mlruns/`.
 It can then be reached under [localhost:5000](http://localhost:5000).
 
+<p>
+  <img src="assets/swissroll_forward.jpg" alt="Forward process diffusing data into noise" title="Forward diffusion process" width="700">
+</p>
+
+<p>
+  <img src="assets/swissroll_reverse.jpg" alt="Reverse process generating data from noise" title="Trained reverse process" width="700">
+</p>
+
 ## MNIST
 
 The second application is based on the MNIST dataset.
@@ -41,4 +41,12 @@ This is done by calling:
 python train_ddpm_mnist.py
 ```
 [A dedicated notebook](notebooks/ddpm_mnist.ipynb) is provided in order to test the trained model.
+
+<p>
+  <img src="assets/mnist_forward.svg" alt="Forward process diffusing data into noise" title="Forward diffusion process" width="700">
+</p>
+
+<p>
+  <img src="assets/mnist_reverse.svg" alt="Reverse process generating data from noise" title="Trained reverse process" width="700">
+</p>
 

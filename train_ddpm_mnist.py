@@ -34,7 +34,7 @@ def parse_args():
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--num-workers', type=int, default=0, help='number of workers')
 
-    parser.add_argument('--mid-channels', type=int, nargs='+', default=[16, 32, 64], help='channel numbers')
+    parser.add_argument('--mid-channels', type=int, nargs='+', default=[32, 64, 128], help='channel numbers')
     parser.add_argument('--kernel-size', type=int, default=3, help='conv. kernel size')
     parser.add_argument('--padding', type=int, default=1, help='padding parameter')
     parser.add_argument('--norm', type=str, default='batch', help='normalization type')
