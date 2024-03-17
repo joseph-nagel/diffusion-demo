@@ -3,7 +3,7 @@
 The repository contains a simple PyTorch-based demonstration of denoising diffusion models.
 It just aims at providing a basic understanding of this generative modeling approach.
 
-A short theoretical intro to the topic can be found [here](notebooks/ddpm_intro.ipynb).
+A short theoretical intro to the topic can be found [here](notebooks/intro.ipynb).
 Two example applications establish a small experimentation playground.
 They are prepared in such a way that they can be easily modified.
 
@@ -15,7 +15,7 @@ The training script can be run with reasonable default settings by:
 ```
 python train_ddpm_swissroll.py
 ```
-After the training has finished, the final model can be tested and analyzed in [this notebook](notebooks/ddpm_swissroll.ipynb).
+After the training has finished, the final model can be tested and analyzed in [this notebook](notebooks/swissroll.ipynb).
 
 For monitoring the experiment, one can locally run a TensorBoard server by `tensorboard --logdir run/swissroll/`.
 It can be reached under [localhost:6006](http://localhost:6006) per default in your browser.
@@ -40,7 +40,7 @@ This is done by calling:
 ```
 python train_ddpm_mnist.py
 ```
-[A dedicated notebook](notebooks/ddpm_mnist.ipynb) is provided in order to test the trained model.
+[A dedicated notebook](notebooks/mnist.ipynb) is provided in order to test the trained model.
 
 <p>
   <img src="assets/mnist_forward.svg" alt="Forward process diffusing data into noise" title="Forward diffusion process" width="700">
