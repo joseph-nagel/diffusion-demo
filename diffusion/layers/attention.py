@@ -4,27 +4,36 @@ import torch
 import torch.nn as nn
 
 
-class SelfAttention(nn.Module):
+class SelfAttention2D(nn.Module):
     '''
-    Self-attention module.
+    Self-attention with skip connections for 2D data.
 
     Summary
     -------
-    The self-attention from https://arxiv.org/abs/1805.08318 is implemented.
-    It is variant of the classical (scaled) dot product attention,
-    which is here applied within a residual skip connection.
+    This module establishes the self-attention from https://arxiv.org/abs/1805.08318.
+    It employs a residual skip connection adding the inputs after the attention.
+    The input shape for this layer is (batch, channels, height, width).
 
-    The self-attention mechanism relates different items from a sequence.
-    In comparison to conv-layers with limited-size local receptive fields,
-    it allows for better capturing global or long-range dependencies.
+    Parameters
+    ----------
+    in_channels : int
+        Number of input and output channels.
+    out_channels : int
+        Number of queries and keys.
+    scale : bool
+        Determines whether scores are scaled.
 
     '''
 
-    def __init__(self, in_channels, out_channels=None, scaling=False):
+    def __init__(self,
+                 in_channels,
+                 out_channels=None,
+                 scale=False):
+
         super().__init__()
 
         if out_channels is None:
-            out_channels = in_channels // 8 # set to default value in the paper
+            out_channels = in_channels // 8 # set to the default value in the paper
 
         self.f = nn.Conv1d(in_channels, out_channels, kernel_size=1, bias=False) # query
         self.g = nn.Conv1d(in_channels, out_channels, kernel_size=1, bias=False) # key
@@ -32,9 +41,9 @@ class SelfAttention(nn.Module):
 
         self.gamma = nn.Parameter(torch.tensor(0.0))
 
-        if scaling:
-            scale = torch.tensor(out_channels).sqrt()
-            self.register_buffer('scale', scale)
+        if scale:
+            d_k_sqrt = torch.tensor(out_channels).sqrt()
+            self.register_buffer('scale', d_k_sqrt)
         else:
             self.scale = None
 
@@ -50,18 +59,20 @@ class SelfAttention(nn.Module):
         v = self.h(x_flattened) # (b, c, h*w)
 
         # compute attention
-        attention = torch.bmm(q.transpose(1, 2), k) # (b, h*w, h*w)
+        algn_scores = torch.bmm(q.transpose(1, 2), k) # (b, h*w, h*w)
 
         if self.scale is not None:
-            attention = attention / self.scale
+            algn_scores = algn_scores / self.scale
 
-        attention = torch.softmax(attention, dim=1) # (b, h*w, h*w)
-        attention = torch.bmm(v, attention) # (b, c, h*w)
+        attn_weights = torch.softmax(algn_scores, dim=1) # (b, h*w, h*w)
+
+        attention = torch.bmm(v, attn_weights) # (b, c, h*w)
 
         # add skip connection
         out = self.gamma * attention + x_flattened # (b, c, h*w)
 
         # reshape
         out = out.view(b, c, h, w) # (b, c, h, w)
+
         return out
 

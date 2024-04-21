@@ -18,7 +18,7 @@ from . import embed
 from . import utils
 
 
-from .attention import SelfAttention
+from .attention import SelfAttention2D
 
 from .conv import (
     DoubleConv,

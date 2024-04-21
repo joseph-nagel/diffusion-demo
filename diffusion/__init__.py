@@ -29,7 +29,7 @@ from .ddpm import (
 )
 
 from .layers import (
-    SelfAttention,
+    SelfAttention2D,
     DoubleConv,
     CondDoubleConv,
     ResidualBlock,
