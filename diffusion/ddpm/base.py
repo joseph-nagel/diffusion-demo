@@ -29,7 +29,7 @@ class DDPM(LightningModule):
     criterion : {'mse', 'mae'} or callable
         Loss function criterion.
     lr : float
-        Optimizer learning rate.
+        Initial optimizer learning rate.
 
     '''
 
@@ -42,7 +42,7 @@ class DDPM(LightningModule):
         super().__init__()
 
         # set trainable epsilon model
-        self.eps_model = eps_model
+        self.set_model(eps_model)
 
         # set loss function criterion
         if criterion == 'mse':
@@ -80,15 +80,17 @@ class DDPM(LightningModule):
         self.register_buffer('alphas_bar', alphas_bar)
         self.register_buffer('betas_tilde', betas_tilde)
 
+    def set_model(self, eps_model):
+        '''Set noise-predicting model.'''
+        self.eps_model = eps_model
+
+        # check whether class conditioning is used
+        self.class_cond = any([isinstance(m, ClassEmbedding) for m in self.eps_model.modules()])
+
     @property
     def num_steps(self):
         '''Get the total number of time steps.'''
         return len(self.betas)
-
-    @property
-    def class_cond(self):
-        '''Check whether class conditioning is used.'''
-        return any([isinstance(m, ClassEmbedding) for m in self.eps_model.modules()])
 
     @staticmethod
     def _idx2cont_time(tidx, dtype=None):

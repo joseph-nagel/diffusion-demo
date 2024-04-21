@@ -1,8 +1,8 @@
 '''DDPM for tabular data.'''
 
+from ..models import CondDenseModel
 from .base import DDPM
 from .schedules import make_beta_schedule
-from ..models import CondDenseModel
 
 
 class DDPMTab(DDPM):
@@ -23,7 +23,7 @@ class DDPMTab(DDPM):
     activation : str
         Nonlinearity type.
     embed_dim : int
-        Embedding dimension.
+        Dimension of the time embedding.
     num_steps : int
         Number of time steps.
     schedule : str
@@ -38,7 +38,7 @@ class DDPMTab(DDPM):
     criterion : {'mse', 'mae'} or callable
         Loss function criterion.
     lr : float
-        Optimizer learning rate.
+        Initial optimizer learning rate.
 
     '''
 

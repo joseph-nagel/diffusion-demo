@@ -20,59 +20,59 @@ from diffusion import DDPM2d
 def parse_args():
     parser = ArgumentParser()
 
-    parser.add_argument('--random-seed', type=int, required=False, help='random seed')
+    parser.add_argument('--random-seed', type=int, required=False, help='Random seed')
 
-    parser.add_argument('--ckpt-file', type=Path, required=False, help='checkpoint for resuming')
+    parser.add_argument('--ckpt-file', type=Path, required=False, help='Checkpoint for resuming')
 
-    parser.add_argument('--logger', type=str, default='tensorboard', help='logger')
-    parser.add_argument('--save-dir', type=Path, default='run/', help='save dir')
-    parser.add_argument('--name', type=str, default='mnist', help='experiment name')
-    parser.add_argument('--version', type=str, required=False, help='experiment version')
+    parser.add_argument('--logger', type=str, default='tensorboard', help='Logger')
+    parser.add_argument('--save-dir', type=Path, default='run/', help='Save dir')
+    parser.add_argument('--name', type=str, default='mnist', help='Experiment name')
+    parser.add_argument('--version', type=str, required=False, help='Experiment version')
 
-    parser.add_argument('--data-dir', type=Path, default='run/data/', help='data dir')
+    parser.add_argument('--data-dir', type=Path, default='run/data/', help='Data dir')
 
-    parser.add_argument('--batch-size', type=int, default=32, help='batch size')
-    parser.add_argument('--num-workers', type=int, default=0, help='number of workers')
+    parser.add_argument('--batch-size', type=int, default=32, help='Batch size')
+    parser.add_argument('--num-workers', type=int, default=0, help='Number of workers')
 
-    parser.add_argument('--mid-channels', type=int, nargs='+', default=[32, 64, 128], help='channel numbers')
-    parser.add_argument('--kernel-size', type=int, default=3, help='conv. kernel size')
-    parser.add_argument('--padding', type=int, default=1, help='padding parameter')
-    parser.add_argument('--norm', type=str, default='batch', help='normalization type')
-    parser.add_argument('--activation', type=str, default='leaky_relu', help='nonlinearity type')
-    parser.add_argument('--num-resblocks', type=int, default=3, help='number of residual blocks')
-    parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='conv. upsampling mode')
-    parser.add_argument('--embed-dim', type=int, default=128, help='embedding dimension')
+    parser.add_argument('--mid-channels', type=int, nargs='+', default=[32, 64, 128], help='Channel numbers')
+    parser.add_argument('--kernel-size', type=int, default=3, help='Conv. kernel size')
+    parser.add_argument('--padding', type=int, default=1, help='Padding parameter')
+    parser.add_argument('--norm', type=str, default='batch', help='Normalization type')
+    parser.add_argument('--activation', type=str, default='leaky_relu', help='Nonlinearity type')
+    parser.add_argument('--num-resblocks', type=int, default=3, help='Number of residual blocks')
+    parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='Conv. upsampling mode')
+    parser.add_argument('--embed-dim', type=int, default=128, help='Dimension of the time embedding')
 
-    parser.add_argument('--classes', dest='classes', action='store_true', help='enable class conditioning')
-    parser.add_argument('--no-classes', dest='classes', action='store_false', help='disable class conditioning')
+    parser.add_argument('--classes', dest='classes', action='store_true', help='Enable class conditioning')
+    parser.add_argument('--no-classes', dest='classes', action='store_false', help='Disable class conditioning')
     parser.set_defaults(classes=False)
 
-    parser.add_argument('--num-steps', type=int, default=1000, help='number of time steps')
-    parser.add_argument('--schedule', type=str, default='cosine', help='noise schedule mode')
-    parser.add_argument('--beta-range', type=int, nargs='+', default=[1e-04, 0.02], help='beta range')
-    parser.add_argument('--cosine-s', type=float, default=0.008, help='offset for cosine schedule')
-    parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='sigmoid range')
+    parser.add_argument('--num-steps', type=int, default=1000, help='Number of time steps')
+    parser.add_argument('--schedule', type=str, default='cosine', help='Noise schedule mode')
+    parser.add_argument('--beta-range', type=int, nargs='+', default=[1e-04, 0.02], help='Beta range')
+    parser.add_argument('--cosine-s', type=float, default=0.008, help='Offset for cosine schedule')
+    parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='Sigmoid range')
 
-    parser.add_argument('--criterion', type=str, default='mse', help='loss function criterion')
-    parser.add_argument('--lr', type=float, default=1e-03, help='optimizer learning rate')
+    parser.add_argument('--criterion', type=str, default='mse', help='Loss function criterion')
+    parser.add_argument('--lr', type=float, default=1e-03, help='Initial optimizer learning rate')
 
-    parser.add_argument('--max-epochs', type=int, default=1000, help='max. number of training epochs')
+    parser.add_argument('--max-epochs', type=int, default=1000, help='Max. number of training epochs')
 
-    parser.add_argument('--save-top', type=int, default=1, help='number of best models to save')
-    parser.add_argument('--save-every', type=int, default=50, help='regular checkpointing interval')
+    parser.add_argument('--save-top', type=int, default=1, help='Number of best models to save')
+    parser.add_argument('--save-every', type=int, default=50, help='Regular checkpointing interval')
 
-    parser.add_argument('--patience', type=int, default=0, help='early stopping patience')
+    parser.add_argument('--patience', type=int, default=0, help='Early stopping patience')
 
     parser.add_argument('--swa-lrs', type=float, default=1e-04, help='SWA learning rate')
     parser.add_argument('--swa-epoch-start', type=float, default=0.7, help='SWA start epoch')
     parser.add_argument('--annealing-epochs', type=int, default=10, help='SWA annealing epochs')
     parser.add_argument('--annealing-strategy', type=str, default='cos', help='SWA annealing strategy')
 
-    parser.add_argument('--gradient-clip-val', type=float, default=0.5, help='gradient clipping value')
-    parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
+    parser.add_argument('--gradient-clip-val', type=float, default=0.5, help='Gradient clipping value')
+    parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='Gradient clipping mode')
 
-    parser.add_argument('--gpu', dest='gpu', action='store_true', help='use GPU if available')
-    parser.add_argument('--cpu', dest='gpu', action='store_false', help='do not use GPU')
+    parser.add_argument('--gpu', dest='gpu', action='store_true', help='Use GPU if available')
+    parser.add_argument('--cpu', dest='gpu', action='store_false', help='Do not use GPU')
     parser.set_defaults(gpu=True)
 
     args = parser.parse_args()

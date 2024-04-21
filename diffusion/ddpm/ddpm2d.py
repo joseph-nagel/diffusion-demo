@@ -1,8 +1,8 @@
 '''DDPM for 2D data.'''
 
+from ..models import UNet
 from .base import DDPM
 from .schedules import make_beta_schedule
-from ..models import UNet
 
 
 class DDPM2d(DDPM):
@@ -28,12 +28,14 @@ class DDPM2d(DDPM):
         Normalization type.
     activation : str
         Nonlinearity type.
-    embed_dim : int
-        Embedding dimension.
     num_resblocks : int
         Number of residual blocks.
     upsample_mode : str
         Convolutional upsampling mode.
+    embed_dim : int
+        Dimension of the time embedding.
+    num_classes : int
+        Number of classes (for conditioning).
     num_steps : int
         Number of time steps.
     schedule : str
@@ -48,7 +50,7 @@ class DDPM2d(DDPM):
     criterion : {'mse', 'mae'} or callable
         Loss function criterion.
     lr : float
-        Optimizer learning rate.
+        Initial optimizer learning rate.
 
     '''
 

@@ -168,8 +168,8 @@ class UNetDecoder(nn.Module):
                  scaling=2,
                  norm='batch',
                  activation='leaky_relu',
-                 embed_dim=None,
                  upsample_mode='conv_transpose',
+                 embed_dim=None,
                  num_classes=None):
 
         super().__init__()
