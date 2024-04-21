@@ -36,6 +36,7 @@ class DDPM(LightningModule):
                  betas,
                  criterion='mse',
                  lr=1e-04):
+
         super().__init__()
 
         # set trainable epsilon model
@@ -76,6 +77,13 @@ class DDPM(LightningModule):
         '''Get the total number of time steps.'''
         return len(self.betas)
 
+    @staticmethod
+    def idx2cont_time(tidx, dtype=None):
+        '''Transform discrete index to continuous time.'''
+        t = tidx + 1 # note that tidx = 0 corresponds to t = 1.0
+        t = t.float() if dtype is None else t.to(dtype)
+        return t
+
     def forward(self, x, t):
         '''Run the noise-predicting model.'''
         return self.eps_model(x, t)
@@ -83,21 +91,26 @@ class DDPM(LightningModule):
     def diffuse_step(self, x, tidx):
         '''Simulate single forward process step.'''
         beta = self.betas[tidx]
+
         eps = torch.randn_like(x)
         x_noisy = (1 - beta).sqrt() * x + beta.sqrt() * eps
+
         return x_noisy
 
     def diffuse_all_steps(self, x0):
         '''Simulate and return all forward process steps.'''
         x_noisy = torch.zeros(self.num_steps + 1, *x0.shape, device=x0.device)
+
         x_noisy[0] = x0
         for tidx in range(self.num_steps):
             x_noisy[tidx + 1] = self.diffuse_step(x_noisy[tidx], tidx)
+
         return x_noisy
 
     def diffuse(self, x0, tids, return_eps=False):
         '''Simulate multiple forward steps at once.'''
         alpha_bar = self.alphas_bar[tids]
+
         eps = torch.randn_like(x0)
 
         missing_shape = [1] * (eps.ndim - alpha_bar.ndim)
@@ -112,9 +125,10 @@ class DDPM(LightningModule):
 
     def denoise_step(self, x, tids, random_sample=False):
         '''Perform single reverse process step.'''
+
         # set up time variables
         tids = torch.as_tensor(tids, device=x.device).view(-1, 1) # ensure (batch_size>=1, 1)-shaped tensor
-        ts = tids.to(x.dtype) + 1 # note that tidx = 0 corresponds to t = 1.0
+        ts = self.idx2cont_time(tids, dtype=x.dtype)
 
         # predict eps based on noisy x and t
         eps_pred = self.eps_model(x, ts)
@@ -176,9 +190,10 @@ class DDPM(LightningModule):
 
     def loss(self, x):
         '''Compute stochastic loss.'''
+
         # draw random time steps
         tids = torch.randint(0, self.num_steps, size=(x.shape[0], 1), device=x.device)
-        ts = tids.to(x.dtype) + 1 # note that tidx = 0 corresponds to t = 1.0
+        ts = self.idx2cont_time(tids, dtype=x.dtype)
 
         # perform forward process steps
         x_noisy, eps = self.diffuse(x, tids, return_eps=True)
@@ -188,11 +203,13 @@ class DDPM(LightningModule):
 
         # compute loss
         loss = self.criterion(eps_pred, eps)
+
         return loss
 
     @staticmethod
     def _get_features(batch):
         '''Get only batch features and discard the rest.'''
+
         if isinstance(batch, (tuple, list)):
             x_batch = batch[0]
         elif isinstance(batch, dict):
@@ -201,6 +218,7 @@ class DDPM(LightningModule):
             x_batch = batch
         else:
             raise TypeError('Invalid batch type encountered: {}'.format(type(batch)))
+
         return x_batch
 
     def training_step(self, batch, batch_idx):
