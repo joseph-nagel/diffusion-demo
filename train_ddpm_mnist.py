@@ -39,9 +39,13 @@ def parse_args():
     parser.add_argument('--padding', type=int, default=1, help='padding parameter')
     parser.add_argument('--norm', type=str, default='batch', help='normalization type')
     parser.add_argument('--activation', type=str, default='leaky_relu', help='nonlinearity type')
-    parser.add_argument('--embed-dim', type=int, default=128, help='embedding dimension')
     parser.add_argument('--num-resblocks', type=int, default=3, help='number of residual blocks')
     parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='conv. upsampling mode')
+    parser.add_argument('--embed-dim', type=int, default=128, help='embedding dimension')
+
+    parser.add_argument('--classes', dest='classes', action='store_true', help='enable class conditioning')
+    parser.add_argument('--no-classes', dest='classes', action='store_false', help='disable class conditioning')
+    parser.set_defaults(classes=False)
 
     parser.add_argument('--num-steps', type=int, default=1000, help='number of time steps')
     parser.add_argument('--schedule', type=str, default='cosine', help='noise schedule mode')
@@ -132,9 +136,10 @@ def main(args):
         padding=args.padding,
         norm=args.norm,
         activation=args.activation,
-        embed_dim=args.embed_dim,
         num_resblocks=args.num_resblocks,
         upsample_mode=args.upsample_mode,
+        embed_dim=args.embed_dim,
+        num_classes=len(train_set.classes) if args.classes else None,
         num_steps=args.num_steps,
         schedule=args.schedule,
         beta_range=args.beta_range,

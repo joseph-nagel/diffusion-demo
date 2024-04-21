@@ -31,7 +31,8 @@ from .dense import CondDense
 
 from .embed import (
     SinusoidalEncoding,
-    LearnableSinusoidalEncoding
+    LearnableSinusoidalEncoding,
+    ClassEmbedding
 )
 
 from .utils import (

@@ -37,6 +37,7 @@ from .layers import (
     CondDense,
     SinusoidalEncoding,
     LearnableSinusoidalEncoding,
+    ClassEmbedding,
     make_dense,
     make_conv,
     make_activation,

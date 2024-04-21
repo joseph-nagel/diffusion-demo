@@ -35,8 +35,13 @@ class CondDenseModel(nn.Module):
 
         self.dense_layers = nn.ModuleList(dense_list)
 
-    def forward(self, x, t):
+    def forward(self, x, t, cids=None):
+
+        if cids is not None:
+            raise NotImplementedError('Class conditioning is not implemented')
+
         for dense in self.dense_layers:
             x = dense(x, t)
+
         return x
 

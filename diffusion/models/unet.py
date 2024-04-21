@@ -40,9 +40,10 @@ class UNet(nn.Module):
                     padding=1,
                     norm='batch',
                     activation='leaky_relu',
-                    embed_dim=128,
                     num_resblocks=3,
-                    upsample_mode='conv_transpose'):
+                    upsample_mode='conv_transpose',
+                    embed_dim=128,
+                    num_classes=None):
         '''Create instance from architecture parameters.'''
 
         encoder = UNetEncoder(
@@ -53,7 +54,8 @@ class UNet(nn.Module):
             pooling=2,
             norm=norm,
             activation=activation,
-            embed_dim=embed_dim
+            embed_dim=embed_dim,
+            num_classes=num_classes
         )
 
         decoder = UNetDecoder(
@@ -64,28 +66,30 @@ class UNet(nn.Module):
             scaling=2,
             norm=norm,
             activation=activation,
+            upsample_mode=upsample_mode,
             embed_dim=embed_dim,
-            upsample_mode=upsample_mode
+            num_classes=num_classes
         )
 
         bottleneck = UNetBottleneck(
             num_resblocks=num_resblocks,
             num_channels=mid_channels[-1],
-            kernel_size=3, # fix the kernel size to 3, which is its classical value
+            kernel_size=3, # fix the kernel size to 3, which is the classical value
             norm=norm,
             activation=activation,
-            embed_dim=embed_dim
+            embed_dim=embed_dim,
+            num_classes=num_classes
         )
 
         return cls(encoder, decoder, bottleneck)
 
-    def forward(self, x, t):
-        x_list = self.encoder(x, t)
+    def forward(self, x, t, cids=None):
+        x_list = self.encoder(x, t, cids=cids)
 
         if self.bottleneck is not None:
-            x_list[-1] = self.bottleneck(x_list[-1], t)
+            x_list[-1] = self.bottleneck(x_list[-1], t, cids=cids)
 
-        y = self.decoder(x_list, t)
+        y = self.decoder(x_list, t, cids=cids)
         return y
 
 
@@ -100,7 +104,8 @@ class UNetEncoder(nn.Module):
                  pooling=2,
                  norm='batch',
                  activation='leaky_relu',
-                 embed_dim=None):
+                 embed_dim=None,
+                 num_classes=None):
 
         super().__init__()
 
@@ -111,7 +116,8 @@ class UNetEncoder(nn.Module):
             padding=padding,
             norm=norm,
             activation=activation,
-            embed_dim=embed_dim
+            embed_dim=embed_dim,
+            num_classes=num_classes
         )
 
         down_list = []
@@ -127,7 +133,8 @@ class UNetEncoder(nn.Module):
                 padding=padding,
                 norm=norm,
                 activation=activation,
-                embed_dim=embed_dim
+                embed_dim=embed_dim,
+                num_classes=num_classes
             )
 
             down_list.append(down)
@@ -136,15 +143,15 @@ class UNetEncoder(nn.Module):
         self.down = nn.ModuleList(down_list)
         self.conv = nn.ModuleList(conv_list)
 
-    def forward(self, x, t):
+    def forward(self, x, t, cids=None):
         x_list = []
 
-        x = self.first_conv(x, t)
+        x = self.first_conv(x, t, cids=cids)
         x_list.append(x)
 
         for down, conv in zip(self.down, self.conv):
             x = down(x)
-            x = conv(x, t)
+            x = conv(x, t, cids=cids)
             x_list.append(x)
 
         return x_list
@@ -162,7 +169,8 @@ class UNetDecoder(nn.Module):
                  norm='batch',
                  activation='leaky_relu',
                  embed_dim=None,
-                 upsample_mode='conv_transpose'):
+                 upsample_mode='conv_transpose',
+                 num_classes=None):
 
         super().__init__()
 
@@ -215,7 +223,8 @@ class UNetDecoder(nn.Module):
                 padding=padding,
                 norm=norm,
                 activation=activation,
-                embed_dim=embed_dim
+                embed_dim=embed_dim,
+                num_classes=num_classes
             )
 
             up_list.append(up)
@@ -232,13 +241,13 @@ class UNetDecoder(nn.Module):
             padding=0
         )
 
-    def forward(self, x_list, t):
+    def forward(self, x_list, t, cids=None):
         y = x_list[-1]
 
         for idx, (up, conv) in enumerate(zip(self.up, self.conv)):
             y = up(y)
             y = torch.cat((x_list[-2-idx], y), dim=1) # concatenate along channel axis
-            y = conv(y, t)
+            y = conv(y, t, cids=cids)
 
         y = self.last_conv(y)
         return y
@@ -253,7 +262,8 @@ class UNetBottleneck(nn.Module):
                  kernel_size=3, # the classical resblock has a kernel size of 3
                  norm='batch',
                  activation='leaky_relu',
-                 embed_dim=None):
+                 embed_dim=None,
+                 num_classes=None):
 
         super().__init__()
 
@@ -264,15 +274,16 @@ class UNetBottleneck(nn.Module):
                 kernel_size=kernel_size,
                 norm=norm,
                 activation=activation,
-                embed_dim=embed_dim
+                embed_dim=embed_dim,
+                num_classes=num_classes
             )
 
             resblocks_list.append(resblock)
 
         self.resblocks = nn.ModuleList(resblocks_list)
 
-    def forward(self, x, t):
+    def forward(self, x, t, cids=None):
         for resblock in self.resblocks:
-            x = resblock(x, t)
+            x = resblock(x, t, cids=cids)
         return x
 

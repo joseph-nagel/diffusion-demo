@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 from lightning.pytorch import LightningModule
 
+from ..layers import ClassEmbedding
+
 
 class DDPM(LightningModule):
     '''
@@ -55,6 +57,12 @@ class DDPM(LightningModule):
         # set initial learning rate
         self.lr = abs(lr)
 
+        # store hyperparams
+        self.save_hyperparameters(
+            ignore='eps_model',
+            logger=True
+        )
+
         # set scheduling parameters
         betas = torch.as_tensor(betas).view(-1) # note that betas[0] corresponds to t = 1.0
 
@@ -77,16 +85,21 @@ class DDPM(LightningModule):
         '''Get the total number of time steps.'''
         return len(self.betas)
 
+    @property
+    def class_cond(self):
+        '''Check whether class conditioning is used.'''
+        return any([isinstance(m, ClassEmbedding) for m in self.eps_model.modules()])
+
     @staticmethod
-    def idx2cont_time(tidx, dtype=None):
+    def _idx2cont_time(tidx, dtype=None):
         '''Transform discrete index to continuous time.'''
         t = tidx + 1 # note that tidx = 0 corresponds to t = 1.0
         t = t.float() if dtype is None else t.to(dtype)
         return t
 
-    def forward(self, x, t):
+    def forward(self, x, t, cids=None):
         '''Run the noise-predicting model.'''
-        return self.eps_model(x, t)
+        return self.eps_model(x, t, cids=cids)
 
     def diffuse_step(self, x, tidx):
         '''Simulate single forward process step.'''
@@ -123,15 +136,19 @@ class DDPM(LightningModule):
         else:
             return x_noisy
 
-    def denoise_step(self, x, tids, random_sample=False):
+    def denoise_step(self, x, tids, cids=None, random_sample=False):
         '''Perform single reverse process step.'''
 
         # set up time variables
         tids = torch.as_tensor(tids, device=x.device).view(-1, 1) # ensure (batch_size>=1, 1)-shaped tensor
-        ts = self.idx2cont_time(tids, dtype=x.dtype)
+        ts = self._idx2cont_time(tids, dtype=x.dtype)
+
+        # set up class labels
+        if cids is not None:
+            cids = torch.as_tensor(cids, device=x.device).view(-1, 1) # ensure (batch_size>=1, 1)-shaped tensor
 
         # predict eps based on noisy x and t
-        eps_pred = self.eps_model(x, ts)
+        eps_pred = self.eps_model(x, ts, cids=cids)
 
         # compute mean
         p = 1 / self.alphas[tids].sqrt()
@@ -158,84 +175,137 @@ class DDPM(LightningModule):
             return x_denoised_mean, x_denoised_var
 
     @torch.no_grad()
-    def denoise_all_steps(self, xT):
+    def denoise_all_steps(self, xT, cids=None):
         '''Perform and return all reverse process steps.'''
         x_denoised = torch.zeros(self.num_steps + 1, *(xT.shape), device=xT.device)
 
         x_denoised[0] = xT
         for idx, tidx in enumerate(reversed(range(self.num_steps))):
+
             # generate random sample
             if tidx > 0:
-                x_denoised[idx + 1] = self.denoise_step(x_denoised[idx], tidx, random_sample=True)
+                x_denoised[idx + 1] = self.denoise_step(
+                    x_denoised[idx],
+                    tidx,
+                    cids=cids,
+                    random_sample=True
+                )
+
             # take the mean in the last step
             else:
-                x_denoised[idx + 1], _ = self.denoise_step(x_denoised[idx], tidx, random_sample=False)
+                x_denoised[idx + 1], _ = self.denoise_step(
+                    x_denoised[idx],
+                    tidx,
+                    cids=cids,
+                    random_sample=False
+                )
 
         return x_denoised
 
     @torch.no_grad()
-    def generate(self, sample_shape, num_samples=1):
+    def generate(self, sample_shape, cids=None, num_samples=1):
         '''Generate random samples through the reverse process.'''
         x_denoised = torch.randn(num_samples, *sample_shape, device=self.device) # Lightning modules have a device attribute
 
         for tidx in reversed(range(self.num_steps)):
+
             # generate random sample
             if tidx > 0:
-                x_denoised = self.denoise_step(x_denoised, tidx, random_sample=True)
+                x_denoised = self.denoise_step(
+                    x_denoised,
+                    tidx,
+                    cids=cids,
+                    random_sample=True
+                )
+
             # take the mean in the last step
             else:
-                x_denoised, _ = self.denoise_step(x_denoised, tidx, random_sample=False)
+                x_denoised, _ = self.denoise_step(
+                    x_denoised,
+                    tidx,
+                    cids=cids,
+                    random_sample=False
+                )
 
         return x_denoised
 
-    def loss(self, x):
+    def loss(self, x, cids=None):
         '''Compute stochastic loss.'''
 
         # draw random time steps
         tids = torch.randint(0, self.num_steps, size=(x.shape[0], 1), device=x.device)
-        ts = self.idx2cont_time(tids, dtype=x.dtype)
+        ts = self._idx2cont_time(tids, dtype=x.dtype)
 
         # perform forward process steps
         x_noisy, eps = self.diffuse(x, tids, return_eps=True)
 
         # predict eps based on noisy x and t
-        eps_pred = self.eps_model(x_noisy, ts)
+        eps_pred = self.eps_model(x_noisy, ts, cids=cids)
 
         # compute loss
         loss = self.criterion(eps_pred, eps)
 
         return loss
 
-    @staticmethod
-    def _get_features(batch):
-        '''Get only batch features and discard the rest.'''
+    def _get_batch(self, batch):
+        '''Get batch features and labels (if needed).'''
 
-        if isinstance(batch, (tuple, list)):
+        if isinstance(batch, torch.Tensor):
+            x_batch = batch
+
+            if self.class_cond:
+                raise RuntimeError('No labels found')
+
+        elif isinstance(batch, (tuple, list)):
             x_batch = batch[0]
+
+            if self.class_cond:
+                y_batch = batch[1]
+
         elif isinstance(batch, dict):
             x_batch = batch['features']
-        elif isinstance(batch, torch.Tensor):
-            x_batch = batch
+
+            if self.class_cond:
+                y_batch = batch['labels']
+
         else:
             raise TypeError('Invalid batch type encountered: {}'.format(type(batch)))
 
-        return x_batch
+        if self.class_cond:
+            return x_batch, y_batch
+        else:
+            return x_batch
 
     def training_step(self, batch, batch_idx):
-        x_batch = self._get_features(batch)
-        loss = self.loss(x_batch)
+        batch = self._get_batch(batch)
+
+        if isinstance(batch, torch.Tensor):
+            loss = self.loss(batch)
+        else:
+            loss = self.loss(batch[0], cids=batch[1])
+
         self.log('train_loss', loss.item()) # Lightning logs batch-wise scalars during training per default
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x_batch = self._get_features(batch)
-        loss = self.loss(x_batch)
+        batch = self._get_batch(batch)
+
+        if isinstance(batch, torch.Tensor):
+            loss = self.loss(batch)
+        else:
+            loss = self.loss(batch[0], cids=batch[1])
+
         self.log('val_loss', loss.item()) # Lightning automatically averages scalars over batches for validation
         return loss
 
     def test_step(self, batch, batch_idx):
-        x_batch = self._get_features(batch)
-        loss = self.loss(x_batch)
+        batch = self._get_batch(batch)
+
+        if isinstance(batch, torch.Tensor):
+            loss = self.loss(batch)
+        else:
+            loss = self.loss(batch[0], cids=batch[1])
+
         self.log('test_loss', loss.item()) # Lightning automatically averages scalars over batches for testing
         return loss
 

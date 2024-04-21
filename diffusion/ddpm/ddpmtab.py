@@ -74,12 +74,13 @@ class DDPMTab(DDPM):
         )
 
         # initialize DDPM class
-        self.save_hyperparameters() # write hyperparams to checkpoints
-
         super().__init__(
             eps_model=eps_model,
             betas=betas,
             criterion=criterion,
             lr=lr
         )
+
+        # store hyperparams
+        self.save_hyperparameters(logger=True)
 

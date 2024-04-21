@@ -106,3 +106,28 @@ class LearnableSinusoidalEncoding(nn.Sequential):
 
         super().__init__(sinusoidal_encoding, *dense_list)
 
+
+class ClassEmbedding(nn.Embedding):
+    '''Class embedding as a lookup table.'''
+
+    def __init__(self, num_classes, embed_dim):
+
+        super().__init__(
+            num_embeddings=num_classes,
+            embedding_dim=embed_dim
+        )
+
+    def forward(self, cids):
+
+        # ensure (batch, 1)-shape input
+        if cids.ndim in (0, 1):
+            cids = cids.view(-1, 1)
+        elif cids.ndim != 2 or cids.shape[1] != 1:
+            raise ValueError('Invalid tensor shape')
+
+        # return (batch, embed_dim)-shaped output
+        emb = super().forward(cids.int())
+        emb = emb.view(cids.numel(), -1)
+
+        return emb
+

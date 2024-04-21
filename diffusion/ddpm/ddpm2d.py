@@ -59,9 +59,10 @@ class DDPM2d(DDPM):
                  padding=1,
                  norm='batch',
                  activation='leaky_relu',
-                 embed_dim=128,
                  num_resblocks=3,
                  upsample_mode='conv_transpose',
+                 embed_dim=128,
+                 num_classes=None,
                  num_steps=1000,
                  schedule='cosine',
                  beta_range=(1e-04, 0.02),
@@ -78,9 +79,10 @@ class DDPM2d(DDPM):
             padding=padding,
             norm=norm,
             activation=activation,
-            embed_dim=embed_dim,
             num_resblocks=num_resblocks,
-            upsample_mode=upsample_mode
+            upsample_mode=upsample_mode,
+            embed_dim=embed_dim,
+            num_classes=num_classes
         )
 
         # create noise schedule
@@ -93,12 +95,13 @@ class DDPM2d(DDPM):
         )
 
         # initialize DDPM class
-        self.save_hyperparameters() # write hyperparams to checkpoints
-
         super().__init__(
             eps_model=eps_model,
             betas=betas,
             criterion=criterion,
             lr=lr
         )
+
+        # store hyperparams
+        self.save_hyperparameters(logger=True)
 
