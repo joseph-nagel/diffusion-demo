@@ -13,7 +13,7 @@ from lightning.pytorch.callbacks import (
     StochasticWeightAveraging
 )
 
-from diffusion import make_swissroll_2d, DDPMTab
+from diffusion import make_swiss_roll_2d, DDPMTab
 
 
 def parse_args():
@@ -83,13 +83,16 @@ def main(args):
         )
 
     # create datasets
-    x_train, x_val = make_swissroll_2d(
+    x_train, x_val = make_swiss_roll_2d(
         num_samples=args.num_samples,
         noise_level=args.noise_level,
         scaling=args.scaling,
-        val_size=args.val_size,
-        as_tensor=True
+        random_state=None,
+        test_size=args.val_size
     )
+
+    x_train = torch.tensor(x_train, dtype=torch.float32)
+    x_val = torch.tensor(x_val, dtype=torch.float32)
 
     train_set = TensorDataset(x_train)
     val_set = TensorDataset(x_val)

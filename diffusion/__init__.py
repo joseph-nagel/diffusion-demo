@@ -8,18 +8,26 @@ The goal is merely to establish a starting point for further explorations.
 
 Modules
 -------
+data : Datamodules.
 ddpm : Denoising diffusion models.
 layers : Model layers.
 models : Prediction models.
-utils : Some utilities.
 
 '''
 
-from . import ddpm
-from . import layers
-from . import models
-from . import utils
+from . import (
+    data,
+    ddpm,
+    layers,
+    models
+)
 
+
+from .data import (
+    make_swiss_roll_2d,
+    SwissRollDataModule,
+    MNISTDataModule
+)
 
 from .ddpm import (
     DDPM,
@@ -51,6 +59,4 @@ from .models import (
     UNetDecoder,
     UNetBottleneck
 )
-
-from .utils import make_swissroll_2d
 
