@@ -1,0 +1,64 @@
+seed_everything: 12345
+
+ckpt_path: null
+
+data:
+  class_path: "diffusion.SwissRollDataModule"
+  init_args:
+    num_train: 2400
+    num_val: 600
+    num_test: 0
+    noise_level: 0.5
+    scaling: 0.15
+    random_state: null
+    batch_size: 32
+    num_workers: 0
+
+model:
+  class_path: "diffusion.DDPMTab"
+  init_args:
+    in_features: 2
+    mid_features: [128, 128, 128]
+    activation: "leaky_relu"
+    embed_dim: 128
+    num_steps: 500
+    schedule: "cosine"
+    beta_range: [1e-04, 0.02]
+    cosine_s: 0.008
+    sigmoid_range: [-5, 5]
+    criterion: "mse"
+    lr: 1e-03
+
+trainer:
+  accelerator: "cpu"
+  max_epochs: 1000
+  log_every_n_steps: 5
+  logger:
+    class_path: "lightning.pytorch.loggers.TensorBoardLogger"
+    init_args:
+      save_dir: "run/"
+      name: "swissroll"
+      version: null
+  callbacks:
+    - class_path: "lightning.pytorch.callbacks.LearningRateMonitor"
+      init_args:
+        logging_interval: null
+    - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
+      init_args:
+        filename: "best"
+        monitor: "val_loss"
+        mode: "min"
+        save_top_k: 1
+    - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
+      init_args:
+        filename: "{epoch}"
+        save_top_k: -1
+        every_n_epochs: 10
+        save_last: true
+    # - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
+    #   init_args:
+    #     filename: "{step}"
+    #     save_top_k: -1
+    #     every_n_train_steps: 100
+    #     save_last: false
+

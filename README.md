@@ -9,11 +9,11 @@ They are prepared in such a way that they can be easily modified.
 
 ## Swiss roll
 
-First, [the script](./train_ddpm_swissroll.py) trains a generative DDPM model on a 2D Swiss roll distribution.
+First, [the script](scripts/train_ddpm_swissroll.py) trains a generative DDPM model on a 2D Swiss roll distribution.
 It exposes a number of arguments that allow one to adjust the problem setup and model definition.
 The training script can be run with reasonable default settings by:
 ```
-python train_ddpm_swissroll.py
+python scripts/train_ddpm_swissroll.py
 ```
 After the training has finished, the final model can be tested and analyzed in [this notebook](notebooks/swissroll.ipynb).
 
@@ -35,10 +35,10 @@ It can then be reached under [localhost:5000](http://localhost:5000).
 ## MNIST
 
 The second application is based on the MNIST dataset.
-A DDPM generating images of handwritten digits can be learned by running [the script](./train_ddpm_mnist.py).
+A DDPM generating images of handwritten digits can be learned by running [the script](scripts/train_ddpm_mnist.py).
 This is done by calling:
 ```
-python train_ddpm_mnist.py
+python scripts/train_ddpm_mnist.py
 ```
 [A dedicated notebook](notebooks/mnist.ipynb) is provided in order to test the trained model.
 
