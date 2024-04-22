@@ -40,6 +40,12 @@ trainer:
       name: "swissroll"
       version: null
   callbacks:
+    - class_path: "lightning.pytorch.callbacks.StochasticWeightAveraging"
+      init_args:
+        swa_lrs: 1e-04
+        swa_epoch_start: 0.7
+        annealing_epochs: 10
+        annealing_strategy: "cos"
     - class_path: "lightning.pytorch.callbacks.LearningRateMonitor"
       init_args:
         logging_interval: null
