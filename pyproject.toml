@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["diffusion"]
+
+[project]
+name = "diffusion"
+version = "0.0.1"
+description = "PyTorch denoising diffusion demo"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Joseph Nagel", email = "JosephBNagel@gmail.com"}
+]
+keywords = ["denoising diffusion", "generative model"]
+dependencies = [
+    "numpy",
+    "torch",
+    "torchvision",
+    "lightning",
+    "tensorboard",
+    "mlflow",
+    "scikit-learn"
+]
+
+[project.optional-dependencies]
+interactive = [
+    "matplotlib",
+    "notebook"
+]
+
+[project.urls]
+source = "https://github.com/joseph-nagel/diffusion-demo"
+
