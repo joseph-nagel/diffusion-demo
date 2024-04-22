@@ -26,7 +26,7 @@ def parse_args():
 
     parser.add_argument('--logger', type=str, default='tensorboard', help='Logger')
     parser.add_argument('--save-dir', type=Path, default='run/', help='Save dir')
-    parser.add_argument('--name', type=str, default='mnist', help='Experiment name')
+    parser.add_argument('--name', type=str, default='mnist_uncond', help='Experiment name')
     parser.add_argument('--version', type=str, required=False, help='Experiment version')
 
     parser.add_argument('--data-dir', type=Path, default='run/data/', help='Data dir')

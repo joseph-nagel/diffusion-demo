@@ -25,7 +25,7 @@ model:
     num_resblocks: 3
     upsample_mode: "conv_transpose"
     embed_dim: 128
-    num_classes: null
+    num_classes: 10
     num_steps: 1000
     schedule: "cosine"
     beta_range: [1e-04, 0.02]
@@ -42,7 +42,7 @@ trainer:
     class_path: "lightning.pytorch.loggers.TensorBoardLogger"
     init_args:
       save_dir: "run/"
-      name: "mnist"
+      name: "mnist_cond"
       version: null
   callbacks:
     - class_path: "lightning.pytorch.callbacks.StochasticWeightAveraging"

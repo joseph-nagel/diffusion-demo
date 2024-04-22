@@ -1,0 +1,75 @@
+seed_everything: null
+
+ckpt_path: null
+
+data:
+  class_path: "diffusion.MNISTDataModule"
+  init_args:
+    data_set: "mnist"
+    data_dir: "run/data"
+    mean: null
+    std: null
+    random_state: 42
+    batch_size: 32
+    num_workers: 0
+
+model:
+  class_path: "diffusion.DDPM2d"
+  init_args:
+    in_channels: 1
+    mid_channels: [32, 64, 128]
+    kernel_size: 3
+    padding: 1
+    norm: "batch"
+    activation: "leaky_relu"
+    num_resblocks: 3
+    upsample_mode: "conv_transpose"
+    embed_dim: 128
+    num_classes: null
+    num_steps: 1000
+    schedule: "cosine"
+    beta_range: [1e-04, 0.02]
+    cosine_s: 0.008
+    sigmoid_range: [-5, 5]
+    criterion: 'mse'
+    lr: 1e-03
+
+trainer:
+  accelerator: "cpu"
+  max_epochs: 50
+  log_every_n_steps: 100
+  logger:
+    class_path: "lightning.pytorch.loggers.TensorBoardLogger"
+    init_args:
+      save_dir: "run/"
+      name: "mnist_uncond"
+      version: null
+  callbacks:
+    - class_path: "lightning.pytorch.callbacks.StochasticWeightAveraging"
+      init_args:
+        swa_lrs: 1e-04
+        swa_epoch_start: 0.7
+        annealing_epochs: 10
+        annealing_strategy: "cos"
+    - class_path: "lightning.pytorch.callbacks.LearningRateMonitor"
+      init_args:
+        logging_interval: null
+    - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
+      init_args:
+        filename: "best"
+        monitor: "val_loss"
+        mode: "min"
+        save_top_k: 1
+    - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
+      init_args:
+        filename: "{epoch}"
+        save_top_k: -1
+        every_n_epochs: 1
+        save_last: true
+    # - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
+    #   init_args:
+    #     filename: "{step}"
+    #     save_top_k: -1
+    #     every_n_train_steps: 100
+    #     save_last: false
+
