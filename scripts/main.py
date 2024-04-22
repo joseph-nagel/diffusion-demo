@@ -3,7 +3,7 @@ Training script.
 
 Example
 -------
-python scripts/main.py fit --config config/mnist.yaml
+python scripts/main.py fit --config config/swissroll.yaml
 
 '''
 

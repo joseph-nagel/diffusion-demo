@@ -44,6 +44,12 @@ trainer:
       save_dir: "run/"
       name: "mnist_cond"
       version: null
+    # class_path: "lightning.pytorch.loggers.MLFlowLogger"
+    # init_args:
+    #   experiment_name: "mnist_cond"
+    #   run_name: null
+    #   save_dir: "run/mlruns"
+    #   log_model: true
   callbacks:
     - class_path: "lightning.pytorch.callbacks.StochasticWeightAveraging"
       init_args:
