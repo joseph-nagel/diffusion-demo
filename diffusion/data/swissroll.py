@@ -1,4 +1,4 @@
-'''Swiss-roll datamodule.'''
+'''Swiss roll datamodule.'''
 
 from sklearn.datasets import make_swiss_roll
 from sklearn.model_selection import train_test_split
@@ -13,7 +13,7 @@ def make_swiss_roll_2d(num_samples,
                        random_state=None,
                        test_size=None):
     '''
-    Create 2D swiss-roll data.
+    Create 2D swiss roll data.
 
     Parameters
     ----------
@@ -59,7 +59,7 @@ def make_swiss_roll_2d(num_samples,
 
 class SwissRollDataModule(LightningDataModule):
     '''
-    DataModule for 2D swiss-roll data.
+    DataModule for 2D swiss roll data.
 
     Parameters
     ----------

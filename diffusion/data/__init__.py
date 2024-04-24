@@ -4,7 +4,7 @@ Datamodules.
 Modules
 -------
 mnist : MNIST datamodule.
-swissroll : Swiss-roll datamodule.
+swissroll : Swiss roll datamodule.
 
 '''
 

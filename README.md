@@ -44,7 +44,7 @@ python scripts/main.py fit --config config/mnist_uncond.yaml
 python scripts/main.py fit --config config/mnist_cond.yaml
 ```
 Two dedicated notebooks [here](notebooks/mnist_uncond.ipynb) and [here](notebooks/mnist_cond.ipynb)
-are provided in order to test the unconditional and the conditional model after, respectively.
+are provided in order to test the unconditional and the conditional model after training, respectively.
 
 <p>
   <img src="assets/mnist_forward.svg" alt="Forward process diffusing data into noise" title="Forward diffusion process" width="700">
