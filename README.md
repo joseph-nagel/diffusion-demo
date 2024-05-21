@@ -54,3 +54,13 @@ are provided in order to test the unconditional and the conditional model after 
   <img src="assets/mnist_reverse.svg" alt="Reverse process generating data from noise" title="Trained reverse process" width="700">
 </p>
 
+## Notebooks
+
+- [Introduction](notebooks/intro.ipynb)
+
+- [Swiss roll example](notebooks/swissroll.ipynb)
+
+- [Unconditional model on MNIST](notebooks/mnist_uncond.ipynb)
+
+- [Conditional model on MNIST](notebooks/mnist_cond.ipynb)
+
