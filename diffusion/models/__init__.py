@@ -8,9 +8,7 @@ dense : Fully connected model.
 
 '''
 
-from . import dense
-from . import unet
-
+from . import dense, unet
 
 from .dense import CondDenseModel
 

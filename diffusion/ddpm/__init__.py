@@ -10,11 +10,12 @@ schedules : Beta schedules.
 
 '''
 
-from . import base
-from . import ddpm2d
-from . import ddpmtab
-from . import schedules
-
+from . import (
+    base,
+    ddpm2d,
+    ddpmtab,
+    schedules
+)
 
 from .base import DDPM
 

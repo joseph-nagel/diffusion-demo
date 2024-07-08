@@ -22,7 +22,6 @@ from . import (
     models
 )
 
-
 from .data import (
     make_swiss_roll_2d,
     SwissRollDataModule,

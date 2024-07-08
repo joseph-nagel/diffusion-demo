@@ -11,12 +11,13 @@ utils : Modeling utilities.
 
 '''
 
-from . import attention
-from . import conv
-from . import dense
-from . import embed
-from . import utils
-
+from . import (
+    attention,
+    conv,
+    dense,
+    embed,
+    utils
+)
 
 from .attention import SelfAttention2D
 
