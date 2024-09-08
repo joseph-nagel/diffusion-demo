@@ -3,7 +3,8 @@
 The repository contains a simple PyTorch-based demonstration of denoising diffusion models.
 It just aims at providing a first understanding of this generative modeling approach.
 
-A short theoretical intro to the topic can be found [here](notebooks/intro.ipynb).
+A short theoretical intro to standard DDPMs can be found [here](notebooks/intro.ipynb).
+DDIMs for accelerated sampling are discussed in the [companion notebook](notebooks/intro_ddim.ipynb).
 Two example applications establish a small experimentation playground.
 They are prepared in such a way that they can be easily modified and extended.
 
@@ -56,7 +57,9 @@ are provided in order to test the unconditional and the conditional model after 
 
 ## Notebooks
 
-- [Introduction](notebooks/intro.ipynb)
+- [Introduction to DDPMs](notebooks/intro.ipynb)
+
+- [Introduction to DDIMs](notebooks/intro_ddim.ipynb)
 
 - [Swiss roll example](notebooks/swissroll.ipynb)
 
