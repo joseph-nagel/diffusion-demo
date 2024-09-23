@@ -9,6 +9,7 @@ from torchvision import datasets, transforms
 from lightning.pytorch import seed_everything, Trainer
 from lightning.pytorch.loggers import TensorBoardLogger, MLFlowLogger
 from lightning.pytorch.callbacks import (
+    LearningRateMonitor,
     ModelCheckpoint,
     EarlyStopping,
     StochasticWeightAveraging
@@ -158,7 +159,7 @@ def main(args):
     # create logger
     if args.logger == 'tensorboard':
         logger = TensorBoardLogger(
-            args.save_dir,
+            save_dir=args.save_dir,
             name=args.name,
             version=args.version
         )
@@ -171,6 +172,11 @@ def main(args):
         )
     else:
         raise ValueError('Unknown logger: {}'.format(args.logger))
+
+    # set up LR monitor
+    lr_monitor = LearningRateMonitor(logging_interval=None)
+
+    callbacks = [lr_monitor]
 
     # set up checkpointing
     save_top_ckpt = ModelCheckpoint(
@@ -187,7 +193,7 @@ def main(args):
         save_last=True
     )
 
-    callbacks = [save_top_ckpt, save_every_ckpt]
+    callbacks.extend([save_top_ckpt, save_every_ckpt])
 
     # set up early stopping
     if args.patience > 0:
@@ -227,7 +233,7 @@ def main(args):
 
     # check validation loss
     trainer.validate(
-        ddpm,
+        model=ddpm,
         dataloaders=val_loader,
         verbose=False,
         ckpt_path=args.ckpt_file
@@ -235,7 +241,7 @@ def main(args):
 
     # train model
     trainer.fit(
-        ddpm,
+        model=ddpm,
         train_dataloaders=train_loader,
         val_dataloaders=val_loader,
         ckpt_path=args.ckpt_file
