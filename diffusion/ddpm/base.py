@@ -33,11 +33,13 @@ class DDPM(LightningModule):
 
     '''
 
-    def __init__(self,
-                 eps_model,
-                 betas,
-                 criterion='mse',
-                 lr=1e-04):
+    def __init__(
+        self,
+        eps_model,
+        betas,
+        criterion='mse',
+        lr=1e-04
+    ):
 
         super().__init__()
 

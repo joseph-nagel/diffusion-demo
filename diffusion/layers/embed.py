@@ -1,4 +1,4 @@
-'''Positional embedding.'''
+'''Positional and class embedding.'''
 
 import torch
 import torch.nn as nn
@@ -47,6 +47,7 @@ class SinusoidalEncoding(nn.Module):
         return omega
 
     def forward(self, t):
+
         # ensure (batch_size>=1, 1)-shaped tensor
         if t.numel() == 1:
             t = t.view(1, 1)
@@ -59,6 +60,7 @@ class SinusoidalEncoding(nn.Module):
         emb = torch.zeros(batch_size, self.embed_dim, device=device)
         emb[:,0::2] = torch.sin(self.omega * t)
         emb[:,1::2] = torch.cos(self.omega * t)
+
         return emb
 
 
@@ -75,7 +77,7 @@ class LearnableSinusoidalEncoding(nn.Sequential):
     ----------
     num_features : list of ints
         List of layer-specific feature numbers.
-    activation : None or str
+    activation : str or None
         Determines the nonlinearity for all layers but the last.
 
     '''
@@ -108,7 +110,22 @@ class LearnableSinusoidalEncoding(nn.Sequential):
 
 
 class ClassEmbedding(nn.Embedding):
-    '''Class embedding as a lookup table.'''
+    '''
+    Class embedding as a lookup table.
+
+    Summary
+    -------
+    A class embedding is implemented as a lookup table.
+    It establishes a mechanism for class conditioning.
+
+    Parameters
+    ----------
+    num_classes : int
+        Max. number of classes to embed.
+    embed_dim : int
+        Dimensionality of the embedding space.
+
+    '''
 
     def __init__(self, num_classes, embed_dim):
 

@@ -42,18 +42,20 @@ class DDPMTab(DDPM):
 
     '''
 
-    def __init__(self,
-                 in_features=2,
-                 mid_features=(128, 128, 128),
-                 activation='leaky_relu',
-                 embed_dim=128,
-                 num_steps=500,
-                 schedule='cosine',
-                 beta_range=(1e-04, 0.02),
-                 cosine_s=0.008,
-                 sigmoid_range=(-5, 5),
-                 criterion='mse',
-                 lr=1e-04):
+    def __init__(
+        self,
+        in_features=2,
+        mid_features=(128, 128, 128),
+        activation='leaky_relu',
+        embed_dim=128,
+        num_steps=500,
+        schedule='cosine',
+        beta_range=(1e-04, 0.02),
+        cosine_s=0.008,
+        sigmoid_range=(-5, 5),
+        criterion='mse',
+        lr=1e-04
+    ):
 
         # construct dense model
         num_features = (in_features, *mid_features, in_features)

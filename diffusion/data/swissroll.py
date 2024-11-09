@@ -7,11 +7,13 @@ from torch.utils.data import DataLoader, TensorDataset
 from lightning import LightningDataModule
 
 
-def make_swiss_roll_2d(num_samples,
-                       noise_level=0.5,
-                       scaling=0.15,
-                       random_state=None,
-                       test_size=None):
+def make_swiss_roll_2d(
+    num_samples,
+    noise_level=0.5,
+    scaling=0.15,
+    random_state=None,
+    test_size=None
+):
     '''
     Create 2D swiss roll data.
 
@@ -82,15 +84,17 @@ class SwissRollDataModule(LightningDataModule):
 
     '''
 
-    def __init__(self,
-                 num_train,
-                 num_val=0,
-                 num_test=0,
-                 noise_level=0.5,
-                 scaling=0.15,
-                 random_state=42,
-                 batch_size=32,
-                 num_workers=0):
+    def __init__(
+        self,
+        num_train,
+        num_val=0,
+        num_test=0,
+        noise_level=0.5,
+        scaling=0.15,
+        random_state=42,
+        batch_size=32,
+        num_workers=0
+    ):
 
         super().__init__()
 

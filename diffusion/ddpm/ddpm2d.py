@@ -24,9 +24,9 @@ class DDPM2d(DDPM):
         Convolutional kernel size.
     padding : int
         Padding parameter.
-    norm : str
+    norm : str or None
         Normalization type.
-    activation : str
+    activation : str or None
         Nonlinearity type.
     num_resblocks : int
         Number of residual blocks.
@@ -34,7 +34,7 @@ class DDPM2d(DDPM):
         Convolutional upsampling mode.
     embed_dim : int
         Dimension of the time embedding.
-    num_classes : int
+    num_classes : int or None
         Number of classes (for conditioning).
     num_steps : int
         Number of time steps.
@@ -54,24 +54,26 @@ class DDPM2d(DDPM):
 
     '''
 
-    def __init__(self,
-                 in_channels=1,
-                 mid_channels=(16, 32, 64),
-                 kernel_size=3,
-                 padding=1,
-                 norm='batch',
-                 activation='leaky_relu',
-                 num_resblocks=3,
-                 upsample_mode='conv_transpose',
-                 embed_dim=128,
-                 num_classes=None,
-                 num_steps=1000,
-                 schedule='cosine',
-                 beta_range=(1e-04, 0.02),
-                 cosine_s=0.008,
-                 sigmoid_range=(-5, 5),
-                 criterion='mse',
-                 lr=1e-04):
+    def __init__(
+        self,
+        in_channels=1,
+        mid_channels=(16, 32, 64),
+        kernel_size=3,
+        padding=1,
+        norm='batch',
+        activation='leaky_relu',
+        num_resblocks=3,
+        upsample_mode='conv_transpose',
+        embed_dim=128,
+        num_classes=None,
+        num_steps=1000,
+        schedule='cosine',
+        beta_range=(1e-04, 0.02),
+        cosine_s=0.008,
+        sigmoid_range=(-5, 5),
+        criterion='mse',
+        lr=1e-04
+    ):
 
         # construct U-net model
         eps_model = UNet.from_params(

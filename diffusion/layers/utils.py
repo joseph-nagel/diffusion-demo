@@ -3,10 +3,12 @@
 import torch.nn as nn
 
 
-def make_dense(in_features,
-               out_features,
-               bias=True,
-               activation=None):
+def make_dense(
+    in_features,
+    out_features,
+    bias=True,
+    activation=None
+):
     '''
     Create fully connected layer.
 
@@ -18,7 +20,7 @@ def make_dense(in_features,
         Number of outputs.
     bias : bool
         Determines whether a bias is used.
-    activation : None or str
+    activation : str or None
         Determines the nonlinearity.
 
     '''
@@ -32,14 +34,16 @@ def make_dense(in_features,
     return dense_block
 
 
-def make_conv(in_channels,
-              out_channels,
-              kernel_size=3,
-              stride=1,
-              padding=1,
-              bias=True,
-              norm=None,
-              activation=None):
+def make_conv(
+    in_channels,
+    out_channels,
+    kernel_size=3,
+    stride=1,
+    padding=1,
+    bias=True,
+    norm=None,
+    activation=None
+):
     '''
     Create convolutional layer.
 
@@ -57,9 +61,9 @@ def make_conv(in_channels,
         Padding parameter.
     bias : bool
         Determines whether a bias is used.
-    norm : None or str
+    norm : str or None
         Determines the normalization.
-    activation : None or str
+    activation : str or None
         Determines the nonlinearity.
 
     '''
@@ -84,6 +88,7 @@ def make_conv(in_channels,
 
 def make_activation(mode):
     '''Create activation.'''
+
     if mode is None or mode == 'none':
         activation = nn.Identity()
     elif mode == 'sigmoid':
@@ -102,11 +107,13 @@ def make_activation(mode):
         activation = nn.SiLU()
     else:
         raise ValueError('Unknown activation function: {}'.format(mode))
+
     return activation
 
 
 def make_norm(mode, num_features):
     '''Create normalization.'''
+
     if mode is None or mode == 'none':
         norm = nn.Identity()
     elif mode == 'batch':
@@ -115,5 +122,6 @@ def make_norm(mode, num_features):
         norm = nn.InstanceNorm2d(num_features)
     else:
         raise ValueError('Unknown normalization type: {}'.format(mode))
+
     return norm
 

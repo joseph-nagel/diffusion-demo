@@ -9,14 +9,16 @@ from .utils import make_conv, make_activation
 class DoubleConv(nn.Module):
     '''Double convolution block.'''
 
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size=3,
-                 padding=1,
-                 bias=True,
-                 norm='batch',
-                 activation='leaky_relu'):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        kernel_size=3,
+        padding=1,
+        bias=True,
+        norm='batch',
+        activation='leaky_relu'
+    ):
 
         super().__init__()
 
@@ -51,16 +53,18 @@ class DoubleConv(nn.Module):
 class CondDoubleConv(DoubleConv):
     '''Double conv. block with position and class conditioning.'''
 
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size=3,
-                 padding=1,
-                 bias=True,
-                 norm='batch',
-                 activation='leaky_relu',
-                 embed_dim=None,
-                 num_classes=None):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        kernel_size=3,
+        padding=1,
+        bias=True,
+        norm='batch',
+        activation='leaky_relu',
+        embed_dim=None,
+        num_classes=None
+    ):
 
         super().__init__(
             in_channels,
@@ -88,6 +92,7 @@ class CondDoubleConv(DoubleConv):
             self.class_embed = None
 
     def forward(self, x, t=None, cids=None):
+
         out = self.conv_block1(x) # (b, c, h, w)
 
         # add positional embedding channelwise after first conv block
@@ -109,18 +114,21 @@ class CondDoubleConv(DoubleConv):
             raise TypeError('No class label passed')
 
         out = self.conv_block2(out) # (b, c, h, w)
+
         return out
 
 
 class ResidualBlock(nn.Module):
     '''Simple residual block.'''
 
-    def __init__(self,
-                 num_channels,
-                 kernel_size=3, # the classical resblock has a kernel size of 3
-                 bias=True,
-                 norm='batch',
-                 activation='leaky_relu'):
+    def __init__(
+        self,
+        num_channels,
+        kernel_size=3, # the classical resblock has a kernel size of 3
+        bias=True,
+        norm='batch',
+        activation='leaky_relu'
+    ):
 
         super().__init__()
 
@@ -149,24 +157,30 @@ class ResidualBlock(nn.Module):
         self.activation = make_activation(activation) # create separate activation instead
 
     def forward(self, x):
+
         out = self.conv_block1(x)
         out = self.conv_block2(out)
+
         out = out + x # add input before final activation (additive skip connection)
+
         out = self.activation(out)
+
         return out
 
 
 class CondResidualBlock(ResidualBlock):
     '''Residual block with position and class conditioning.'''
 
-    def __init__(self,
-                 num_channels,
-                 kernel_size=3, # the classical resblock has a kernel size of 3
-                 bias=True,
-                 norm='batch',
-                 activation='leaky_relu',
-                 embed_dim=None,
-                 num_classes=None):
+    def __init__(
+        self,
+        num_channels,
+        kernel_size=3, # the classical resblock has a kernel size of 3
+        bias=True,
+        norm='batch',
+        activation='leaky_relu',
+        embed_dim=None,
+        num_classes=None
+    ):
 
         super().__init__(
             num_channels,
@@ -192,6 +206,7 @@ class CondResidualBlock(ResidualBlock):
             self.class_embed = None
 
     def forward(self, x, t=None, cids=None):
+
         out = self.conv_block1(x) # (b, c, h, w)
 
         # add positional embedding channelwise after first conv block
@@ -215,5 +230,6 @@ class CondResidualBlock(ResidualBlock):
         out = self.conv_block2(out) # (b, c, h, w)
         out = out + x # add input before final activation (additive skip connection)
         out = self.activation(out) # (b, c, h, w)
+
         return out
 

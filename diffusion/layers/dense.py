@@ -9,11 +9,13 @@ from .utils import make_activation
 class CondDense(nn.Module):
     '''Conditional fully connected layer.'''
 
-    def __init__(self,
-                 in_features,
-                 out_features,
-                 activation='leaky_relu',
-                 embed_dim=None):
+    def __init__(
+        self,
+        in_features,
+        out_features,
+        activation='leaky_relu',
+        embed_dim=None
+    ):
 
         super().__init__()
 

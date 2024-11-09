@@ -18,17 +18,19 @@ class SelfAttention2D(nn.Module):
     ----------
     in_channels : int
         Number of input and output channels.
-    out_channels : int
+    out_channels : int or None
         Number of queries and keys.
     scale : bool
         Determines whether scores are scaled.
 
     '''
 
-    def __init__(self,
-                 in_channels,
-                 out_channels=None,
-                 scale=False):
+    def __init__(
+        self,
+        in_channels,
+        out_channels=None,
+        scale=False
+    ):
 
         super().__init__()
 
@@ -48,6 +50,7 @@ class SelfAttention2D(nn.Module):
             self.scale = None
 
     def forward(self, x):
+
         b, c, h, w = x.shape
 
         # flatten tensor (last axis contains the sequence)

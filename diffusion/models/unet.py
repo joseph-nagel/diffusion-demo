@@ -16,15 +16,21 @@ class UNet(nn.Module):
     It is composed of encoder, bottleneck and decoder parts.
     While encoder and decoder contain multiple blocks of two normal
     conv-layers, only the bottleneck uses standard residual blocks.
-    The conditioning is here realized by ingesting a time embedding
+
+    The time-conditioning is here realized by ingesting a time embedding
     into the middle of such a block, after the first convolution.
+
+    A similar mechanism for class-conditioning is implemented.
+    It is based on a lookup table embedding.
 
     '''
 
-    def __init__(self,
-                 encoder,
-                 decoder,
-                 bottleneck=None):
+    def __init__(
+        self,
+        encoder,
+        decoder,
+        bottleneck=None
+    ):
 
         super().__init__()
 
@@ -33,17 +39,19 @@ class UNet(nn.Module):
         self.bottleneck = bottleneck
 
     @classmethod
-    def from_params(cls,
-                    in_channels=1,
-                    mid_channels=(16, 32, 64),
-                    kernel_size=3,
-                    padding=1,
-                    norm='batch',
-                    activation='leaky_relu',
-                    num_resblocks=3,
-                    upsample_mode='conv_transpose',
-                    embed_dim=128,
-                    num_classes=None):
+    def from_params(
+        cls,
+        in_channels=1,
+        mid_channels=(16, 32, 64),
+        kernel_size=3,
+        padding=1,
+        norm='batch',
+        activation='leaky_relu',
+        num_resblocks=3,
+        upsample_mode='conv_transpose',
+        embed_dim=128,
+        num_classes=None
+    ):
         '''Create instance from architecture parameters.'''
 
         encoder = UNetEncoder(
@@ -96,16 +104,18 @@ class UNet(nn.Module):
 class UNetEncoder(nn.Module):
     '''Conditional U-net encoder.'''
 
-    def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 kernel_size=3,
-                 padding=1,
-                 pooling=2,
-                 norm='batch',
-                 activation='leaky_relu',
-                 embed_dim=None,
-                 num_classes=None):
+    def __init__(
+        self,
+        in_channels,
+        mid_channels,
+        kernel_size=3,
+        padding=1,
+        pooling=2,
+        norm='batch',
+        activation='leaky_relu',
+        embed_dim=None,
+        num_classes=None
+    ):
 
         super().__init__()
 
@@ -160,17 +170,19 @@ class UNetEncoder(nn.Module):
 class UNetDecoder(nn.Module):
     '''Conditional U-net decoder.'''
 
-    def __init__(self,
-                 mid_channels,
-                 out_channels,
-                 kernel_size=3,
-                 padding=1,
-                 scaling=2,
-                 norm='batch',
-                 activation='leaky_relu',
-                 upsample_mode='conv_transpose',
-                 embed_dim=None,
-                 num_classes=None):
+    def __init__(
+        self,
+        mid_channels,
+        out_channels,
+        kernel_size=3,
+        padding=1,
+        scaling=2,
+        norm='batch',
+        activation='leaky_relu',
+        upsample_mode='conv_transpose',
+        embed_dim=None,
+        num_classes=None
+    ):
 
         super().__init__()
 
@@ -256,14 +268,16 @@ class UNetDecoder(nn.Module):
 class UNetBottleneck(nn.Module):
     '''Conditional U-net bottleneck.'''
 
-    def __init__(self,
-                 num_resblocks,
-                 num_channels,
-                 kernel_size=3, # the classical resblock has a kernel size of 3
-                 norm='batch',
-                 activation='leaky_relu',
-                 embed_dim=None,
-                 num_classes=None):
+    def __init__(
+        self,
+        num_resblocks,
+        num_channels,
+        kernel_size=3, # the classical resblock has a kernel size of 3
+        norm='batch',
+        activation='leaky_relu',
+        embed_dim=None,
+        num_classes=None
+    ):
 
         super().__init__()
 

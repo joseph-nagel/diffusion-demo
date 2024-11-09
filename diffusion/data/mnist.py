@@ -29,14 +29,16 @@ class MNISTDataModule(LightningDataModule):
 
     '''
 
-    def __init__(self,
-                 data_set='mnist',
-                 data_dir='.',
-                 mean=None,
-                 std=None,
-                 random_state=42,
-                 batch_size=32,
-                 num_workers=0):
+    def __init__(
+        self,
+        data_set='mnist',
+        data_dir='.',
+        mean=None,
+        std=None,
+        random_state=42,
+        batch_size=32,
+        num_workers=0
+    ):
 
         super().__init__()
 

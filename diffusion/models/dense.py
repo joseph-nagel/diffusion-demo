@@ -8,10 +8,12 @@ from ..layers import CondDense
 class CondDenseModel(nn.Module):
     '''Conditional fully connected model.'''
 
-    def __init__(self,
-                 num_features,
-                 activation='leaky_relu',
-                 embed_dim=None):
+    def __init__(
+        self,
+        num_features,
+        activation='leaky_relu',
+        embed_dim=None
+    ):
 
         super().__init__()
 
