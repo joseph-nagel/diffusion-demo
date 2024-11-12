@@ -8,6 +8,7 @@ DDIMs for accelerated sampling are discussed in the [companion notebook](noteboo
 Two example applications establish a small experimentation playground.
 They are prepared in such a way that they can be easily modified and extended.
 
+
 ## Notebooks
 
 - [Introduction to DDPMs](notebooks/intro_1_ddpm.ipynb)
@@ -19,6 +20,7 @@ They are prepared in such a way that they can be easily modified and extended.
 - [Unconditional model on MNIST](notebooks/mnist_uncond.ipynb)
 
 - [Conditional model on MNIST](notebooks/mnist_cond.ipynb)
+
 
 ## Swiss roll
 
@@ -44,6 +46,7 @@ It can then be reached under [localhost:5000](http://localhost:5000).
 <p>
   <img src="assets/swissroll_reverse.jpg" alt="Reverse process generating data from noise" title="Trained reverse process" width="700">
 </p>
+
 
 ## MNIST
 
