@@ -1,7 +1,7 @@
 # PyTorch denoising diffusion demo
 
-The repository contains a simple PyTorch-based demonstration of denoising diffusion models.
-It just aims at providing a first understanding of this generative modeling approach.
+This repository contains a simple implementation of denoising diffusion models.
+It is PyTorch-based and employs Lightning for model training.
 
 A short theoretical intro to standard DDPMs can be found [here](notebooks/intro_1_ddpm.ipynb).
 DDIMs for accelerated sampling are discussed in the [companion notebook](notebooks/intro_2_ddim.ipynb).
