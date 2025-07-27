@@ -79,7 +79,7 @@ class CondDoubleConv(DoubleConv):
         # create multi-layer positional embedding
         if embed_dim is not None:
             self.time_embed = LearnableSinusoidalEncoding(
-                [embed_dim, out_channels, out_channels], # stack two learnable dense layers after the sinusoidal encoding
+                [embed_dim, out_channels, out_channels],  # stack two learnable dense layers after the sinusoidal encoding
                 activation=activation
             )
         else:
@@ -93,12 +93,12 @@ class CondDoubleConv(DoubleConv):
 
     def forward(self, x, t=None, cids=None):
 
-        out = self.conv_block1(x) # (b, c, h, w)
+        out = self.conv_block1(x)  # (b, c, h, w)
 
         # add positional embedding channelwise after first conv block
         if t is not None and self.time_embed is not None:
-            t_emb = self.time_embed(t) # (b, c)
-            out = out + t_emb.view(*t_emb.shape, 1, 1) # (b, c, h, w)
+            t_emb = self.time_embed(t)  # (b, c)
+            out = out + t_emb.view(*t_emb.shape, 1, 1)  # (b, c, h, w)
         elif t is not None and self.time_embed is None:
             raise TypeError('No temporal embedding')
         elif t is None and self.time_embed is not None:
@@ -106,14 +106,14 @@ class CondDoubleConv(DoubleConv):
 
         # add class embedding similarly between the convs
         if cids is not None and self.class_embed is not None:
-            c_emb = self.class_embed(cids) # (b, c)
-            out = out + c_emb.view(*c_emb.shape, 1, 1) # (b, c, h, w)
+            c_emb = self.class_embed(cids)  # (b, c)
+            out = out + c_emb.view(*c_emb.shape, 1, 1)  # (b, c, h, w)
         elif cids is not None and self.class_embed is None:
             raise TypeError('No class embedding')
         elif cids is None and self.class_embed is not None:
             raise TypeError('No class label passed')
 
-        out = self.conv_block2(out) # (b, c, h, w)
+        out = self.conv_block2(out)  # (b, c, h, w)
 
         return out
 
@@ -124,7 +124,7 @@ class ResidualBlock(nn.Module):
     def __init__(
         self,
         num_channels,
-        kernel_size=3, # the classical resblock has a kernel size of 3
+        kernel_size=3,  # the classical resblock has a kernel size of 3
         bias=True,
         norm='batch',
         activation='leaky_relu'
@@ -151,17 +151,17 @@ class ResidualBlock(nn.Module):
             padding='same',
             bias=bias,
             norm=norm,
-            activation=None # remove activation from conv block
+            activation=None  # remove activation from conv block
         )
 
-        self.activation = make_activation(activation) # create separate activation instead
+        self.activation = make_activation(activation)  # create separate activation instead
 
     def forward(self, x):
 
         out = self.conv_block1(x)
         out = self.conv_block2(out)
 
-        out = out + x # add input before final activation (additive skip connection)
+        out = out + x  # add input before final activation (additive skip connection)
 
         out = self.activation(out)
 
@@ -174,7 +174,7 @@ class CondResidualBlock(ResidualBlock):
     def __init__(
         self,
         num_channels,
-        kernel_size=3, # the classical resblock has a kernel size of 3
+        kernel_size=3,  # the classical resblock has a kernel size of 3
         bias=True,
         norm='batch',
         activation='leaky_relu',
@@ -193,7 +193,7 @@ class CondResidualBlock(ResidualBlock):
         # create multi-layer positional embedding
         if embed_dim is not None:
             self.time_embed = LearnableSinusoidalEncoding(
-                [embed_dim, num_channels, num_channels], # stack two learnable dense layers after the sinusoidal encoding
+                [embed_dim, num_channels, num_channels],  # stack two learnable dense layers after the sinusoidal encoding
                 activation=activation
             )
         else:
@@ -207,12 +207,12 @@ class CondResidualBlock(ResidualBlock):
 
     def forward(self, x, t=None, cids=None):
 
-        out = self.conv_block1(x) # (b, c, h, w)
+        out = self.conv_block1(x)  # (b, c, h, w)
 
         # add positional embedding channelwise after first conv block
         if t is not None and self.time_embed is not None:
-            t_emb = self.time_embed(t) # (b, c)
-            out = out + t_emb.view(*t_emb.shape, 1, 1) # (b, c, h, w)
+            t_emb = self.time_embed(t)  # (b, c)
+            out = out + t_emb.view(*t_emb.shape, 1, 1)  # (b, c, h, w)
         elif t is not None and self.time_embed is None:
             raise TypeError('No temporal embedding')
         elif t is None and self.time_embed is not None:
@@ -220,16 +220,16 @@ class CondResidualBlock(ResidualBlock):
 
         # add class embedding similarly between the convs
         if cids is not None and self.class_embed is not None:
-            c_emb = self.class_embed(cids) # (b, c)
-            out = out + c_emb.view(*c_emb.shape, 1, 1) # (b, c, h, w)
+            c_emb = self.class_embed(cids)  # (b, c)
+            out = out + c_emb.view(*c_emb.shape, 1, 1)  # (b, c, h, w)
         elif cids is not None and self.class_embed is None:
             raise TypeError('No class embedding')
         elif cids is None and self.class_embed is not None:
             raise TypeError('No class label passed')
 
-        out = self.conv_block2(out) # (b, c, h, w)
-        out = out + x # add input before final activation (additive skip connection)
-        out = self.activation(out) # (b, c, h, w)
+        out = self.conv_block2(out)  # (b, c, h, w)
+        out = out + x  # add input before final activation (additive skip connection)
+        out = self.activation(out)  # (b, c, h, w)
 
         return out
 

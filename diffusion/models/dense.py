@@ -29,8 +29,8 @@ class CondDenseModel(nn.Module):
             dense = CondDense(
                 in_features,
                 out_features,
-                activation=activation if is_not_last else None, # set activation for all layers except the last
-                embed_dim=embed_dim # set time embedding for all layers
+                activation=activation if is_not_last else None,  # set activation for all layers except the last
+                embed_dim=embed_dim  # set time embedding for all layers
             )
 
             dense_list.append(dense)

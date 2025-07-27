@@ -74,13 +74,13 @@ def make_conv(
         kernel_size=kernel_size,
         stride=stride,
         padding=padding,
-        bias=bias # the bias should be disabled if a batchnorm directly follows after the convolution
+        bias=bias  # the bias should be disabled if a batchnorm directly follows after the convolution
     )
 
     activation = make_activation(activation)
     norm = make_norm(norm, num_features=out_channels)
 
-    layers = [conv, activation, norm] # note that the normalization follows the activation (which could be reversed of course)
+    layers = [conv, activation, norm]  # note that the normalization follows the activation (which could be reversed of course)
     conv_block = nn.Sequential(*layers)
 
     return conv_block

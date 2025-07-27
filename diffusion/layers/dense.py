@@ -26,7 +26,7 @@ class CondDense(nn.Module):
         # create multi-layer positional embedding
         if embed_dim is not None:
             self.emb = LearnableSinusoidalEncoding(
-                [embed_dim, out_features, out_features], # stack two learnable dense layers after the sinusoidal encoding
+                [embed_dim, out_features, out_features],  # stack two learnable dense layers after the sinusoidal encoding
                 activation=activation
             )
         else:

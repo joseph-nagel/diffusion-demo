@@ -97,7 +97,7 @@ def main(args):
     transform = transforms.Compose([
         transforms.RandomRotation(5),
         transforms.ToTensor()
-    ]) # TODO: refine data augmentation
+    ])  # TODO: refine data augmentation
 
     train_set = datasets.MNIST(
         args.data_dir,

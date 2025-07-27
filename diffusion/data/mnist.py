@@ -64,7 +64,7 @@ class MNISTDataModule(LightningDataModule):
 
         # create transforms
         train_transforms = [
-            transforms.RandomRotation(5), # TODO: refine data augmentation
+            transforms.RandomRotation(5),  # TODO: refine data augmentation
             transforms.ToTensor()
         ]
 

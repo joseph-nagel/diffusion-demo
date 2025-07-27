@@ -82,7 +82,7 @@ class UNet(nn.Module):
         bottleneck = UNetBottleneck(
             num_resblocks=num_resblocks,
             num_channels=mid_channels[-1],
-            kernel_size=3, # fix the kernel size to 3, which is the classical value
+            kernel_size=3,  # fix the kernel size to 3, which is the classical value
             norm=norm,
             activation=activation,
             embed_dim=embed_dim,
@@ -229,7 +229,7 @@ class UNetDecoder(nn.Module):
                 raise ValueError('Unknown upsample mode: {}'.format(upsample_mode))
 
             conv = CondDoubleConv(
-                in_channels=2*ch2, # reserve channels for concatenation skip connection
+                in_channels=2*ch2,  # reserve channels for concatenation skip connection
                 out_channels=ch2,
                 kernel_size=kernel_size,
                 padding=padding,
@@ -248,7 +248,7 @@ class UNetDecoder(nn.Module):
         self.last_conv = nn.Conv2d(
             in_channels=mid_channels[-1],
             out_channels=out_channels,
-            kernel_size=1, # use 1x1 convolution in the final layer
+            kernel_size=1,  # use 1x1 convolution in the final layer
             stride=1,
             padding=0
         )
@@ -258,7 +258,7 @@ class UNetDecoder(nn.Module):
 
         for idx, (up, conv) in enumerate(zip(self.up, self.conv)):
             y = up(y)
-            y = torch.cat((x_list[-2-idx], y), dim=1) # concatenate along channel axis
+            y = torch.cat((x_list[-2-idx], y), dim=1)  # concatenate along channel axis
             y = conv(y, t, cids=cids)
 
         y = self.last_conv(y)
@@ -272,7 +272,7 @@ class UNetBottleneck(nn.Module):
         self,
         num_resblocks,
         num_channels,
-        kernel_size=3, # the classical resblock has a kernel size of 3
+        kernel_size=3,  # the classical resblock has a kernel size of 3
         norm='batch',
         activation='leaky_relu',
         embed_dim=None,

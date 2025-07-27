@@ -66,7 +66,7 @@ class DDPM(LightningModule):
         )
 
         # set scheduling parameters
-        betas = torch.as_tensor(betas).view(-1) # note that betas[0] corresponds to t = 1.0
+        betas = torch.as_tensor(betas).view(-1)  # note that betas[0] corresponds to t = 1.0
 
         if betas.min() <= 0 or betas.max() >= 1:
             raise ValueError('Invalid beta values encountered')
@@ -75,7 +75,7 @@ class DDPM(LightningModule):
         alphas_bar = torch.cumprod(alphas, dim=0)
 
         betas_tilde = (1 - alphas_bar[:-1]) / (1 - alphas_bar[1:]) * betas[1:]
-        betas_tilde = nn.functional.pad(betas_tilde, pad=(1, 0), value=0.0) # ensure betas_tilde[0] = 0.0
+        betas_tilde = nn.functional.pad(betas_tilde, pad=(1, 0), value=0.0)  # ensure betas_tilde[0] = 0.0
 
         self.register_buffer('betas', betas)
         self.register_buffer('alphas', alphas)
@@ -97,7 +97,7 @@ class DDPM(LightningModule):
     @staticmethod
     def _idx2cont_time(tidx, dtype=None):
         '''Transform discrete index to continuous time.'''
-        t = tidx + 1 # note that tidx = 0 corresponds to t = 1.0
+        t = tidx + 1  # note that tidx = 0 corresponds to t = 1.0
         t = t.float() if dtype is None else t.to(dtype)
         return t
 
@@ -144,12 +144,12 @@ class DDPM(LightningModule):
         '''Perform single reverse process step.'''
 
         # set up time variables
-        tids = torch.as_tensor(tids, device=x.device).view(-1, 1) # ensure (batch_size>=1, 1)-shaped tensor
+        tids = torch.as_tensor(tids, device=x.device).view(-1, 1)  # ensure (batch_size>=1, 1)-shaped tensor
         ts = self._idx2cont_time(tids, dtype=x.dtype)
 
         # set up class labels
         if cids is not None:
-            cids = torch.as_tensor(cids, device=x.device).view(-1, 1) # ensure (batch_size>=1, 1)-shaped tensor
+            cids = torch.as_tensor(cids, device=x.device).view(-1, 1)  # ensure (batch_size>=1, 1)-shaped tensor
 
         # predict eps based on noisy x and t
         eps_pred = self.eps_model(x, ts, cids=cids)
@@ -209,7 +209,7 @@ class DDPM(LightningModule):
     @torch.no_grad()
     def generate(self, sample_shape, cids=None, num_samples=1):
         '''Generate random samples through the reverse process.'''
-        x_denoised = torch.randn(num_samples, *sample_shape, device=self.device) # Lightning modules have a device attribute
+        x_denoised = torch.randn(num_samples, *sample_shape, device=self.device)  # Lightning modules have a device attribute
 
         for tidx in reversed(range(self.num_steps)):
 
@@ -288,7 +288,7 @@ class DDPM(LightningModule):
         else:
             loss = self.loss(batch[0], cids=batch[1])
 
-        self.log('train_loss', loss.item()) # Lightning logs batch-wise scalars during training per default
+        self.log('train_loss', loss.item())  # Lightning logs batch-wise scalars during training per default
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -299,7 +299,7 @@ class DDPM(LightningModule):
         else:
             loss = self.loss(batch[0], cids=batch[1])
 
-        self.log('val_loss', loss.item()) # Lightning automatically averages scalars over batches for validation
+        self.log('val_loss', loss.item())  # Lightning automatically averages scalars over batches for validation
         return loss
 
     def test_step(self, batch, batch_idx):
@@ -310,7 +310,7 @@ class DDPM(LightningModule):
         else:
             loss = self.loss(batch[0], cids=batch[1])
 
-        self.log('test_loss', loss.item()) # Lightning automatically averages scalars over batches for testing
+        self.log('test_loss', loss.item())  # Lightning automatically averages scalars over batches for testing
         return loss
 
     # TODO: enable LR scheduling

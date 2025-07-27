@@ -101,7 +101,7 @@ class LearnableSinusoidalEncoding(nn.Sequential):
             dense = make_dense(
                 in_features,
                 out_features,
-                activation=activation if is_not_last else None # set activation for all layers except the last
+                activation=activation if is_not_last else None  # set activation for all layers except the last
             )
 
             dense_list.append(dense)
