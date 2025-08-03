@@ -32,6 +32,7 @@ from .ddpm import (
     DDPM,
     DDPM2d,
     DDPMTab,
+    make_lr_schedule,
     make_beta_schedule
 )
 
