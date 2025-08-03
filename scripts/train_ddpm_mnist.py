@@ -61,7 +61,11 @@ def parse_args():
     parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='Sigmoid range')
 
     parser.add_argument('--criterion', type=str, default='mse', help='Loss function criterion')
-    parser.add_argument('--lr', type=float, default=1e-03, help='Initial optimizer learning rate')
+
+    parser.add_argument('--lr', type=float, default=1e-03, help='Initial learning rate')
+    parser.add_argument('--lr-schedule', type=str, default='constant', choices=['constant', 'cosine'], help='LR schedule type')
+    parser.add_argument('--lr-interval', type=str, default='epoch', choices=['epoch', 'step'], help='LR update interval')
+    parser.add_argument('--lr-warmup', type=int, default=0, help='Warmup steps/epochs')
 
     parser.add_argument('--max-epochs', type=int, default=1000, help='Max. number of training epochs')
 
@@ -150,7 +154,10 @@ def main(args):
         cosine_s=args.cosine_s,
         sigmoid_range=args.sigmoid_range,
         criterion=args.criterion,
-        lr=args.lr
+        lr=args.lr,
+        lr_schedule=args.lr_schedule,
+        lr_interval=args.lr_interval,
+        lr_warmup=args.lr_warmup
     )
 
     # set accelerator

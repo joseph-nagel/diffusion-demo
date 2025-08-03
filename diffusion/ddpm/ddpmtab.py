@@ -2,7 +2,7 @@
 
 from ..models import CondDenseModel
 from .base import DDPM
-from .schedules import make_beta_schedule
+from .noise_schedule import make_beta_schedule
 
 
 class DDPMTab(DDPM):
@@ -38,7 +38,13 @@ class DDPMTab(DDPM):
     criterion : {'mse', 'mae'} or callable
         Loss function criterion.
     lr : float
-        Initial optimizer learning rate.
+        Initial learning rate.
+    lr_schedule : {"constant", "cosine"}
+        Learning rate schedule type.
+    lr_interval : {"epoch", "step"}
+        Learning rate update interval.
+    lr_warmup : int
+        Warmup steps/epochs.
 
     '''
 
@@ -54,7 +60,10 @@ class DDPMTab(DDPM):
         cosine_s=0.008,
         sigmoid_range=(-5, 5),
         criterion='mse',
-        lr=1e-04
+        lr=1e-04,
+        lr_schedule='constant',
+        lr_interval='epoch',
+        lr_warmup=0
     ):
 
         # construct dense model
@@ -80,7 +89,10 @@ class DDPMTab(DDPM):
             eps_model=eps_model,
             betas=betas,
             criterion=criterion,
-            lr=lr
+            lr=lr,
+            lr_schedule=lr_schedule,
+            lr_interval=lr_interval,
+            lr_warmup=lr_warmup
         )
 
         # store hyperparams

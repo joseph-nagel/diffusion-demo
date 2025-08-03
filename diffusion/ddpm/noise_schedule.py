@@ -88,7 +88,7 @@ def make_beta_schedule(
             raise ValueError('Sigmoid range should have two entries')
 
     else:
-        raise ValueError('Unknown schedule type: {}'.format(mode))
+        raise ValueError('Unknown noise schedule type: {}'.format(mode))
 
     return betas
 

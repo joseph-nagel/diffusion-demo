@@ -6,7 +6,8 @@ Modules
 base : DDPM base model.
 ddpm2d : DDPM for 2D data.
 ddpmtab : DDPM for tabular data.
-schedules : Beta schedules.
+lr_schedule : Learning rate schedules.
+noise_schedule : Beta schedules.
 
 '''
 
@@ -14,7 +15,8 @@ from . import (
     base,
     ddpm2d,
     ddpmtab,
-    schedules
+    lr_schedule,
+    noise_schedule
 )
 
 from .base import DDPM
@@ -23,5 +25,7 @@ from .ddpm2d import DDPM2d
 
 from .ddpmtab import DDPMTab
 
-from .schedules import make_beta_schedule
+from .lr_schedule import make_lr_schedule
+
+from .noise_schedule import make_beta_schedule
 

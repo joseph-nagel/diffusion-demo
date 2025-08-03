@@ -33,6 +33,9 @@ model:
     sigmoid_range: [-5, 5]
     criterion: 'mse'
     lr: 1e-03
+    lr_schedule: "constant"
+    lr_interval: "epoch"
+    lr_warmup: 0
 
 trainer:
   accelerator: "cpu"
