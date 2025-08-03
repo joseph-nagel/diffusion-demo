@@ -4,11 +4,11 @@ import torch.nn as nn
 
 
 def make_dense(
-    in_features,
-    out_features,
-    bias=True,
-    activation=None
-):
+    in_features: int,
+    out_features: int,
+    bias: bool = True,
+    activation: str | None = None
+) -> nn.Sequential:
     '''
     Create fully connected layer.
 
@@ -35,15 +35,15 @@ def make_dense(
 
 
 def make_conv(
-    in_channels,
-    out_channels,
-    kernel_size=3,
-    stride=1,
-    padding=1,
-    bias=True,
-    norm=None,
-    activation=None
-):
+    in_channels: int,
+    out_channels: int,
+    kernel_size: int | tuple[int, int] = 3,
+    stride: int | tuple[int, int] = 1,
+    padding: str | int | tuple[int, int] = 1,
+    bias: bool = True,
+    norm: str | None = None,
+    activation: str | None = None
+) -> nn.Sequential:
     '''
     Create convolutional layer.
 
@@ -53,11 +53,11 @@ def make_conv(
         Number of input channels.
     out_channels : int
         Number of output channels.
-    kernel_size : int
+    kernel_size : int or (int, int)
         Convolutional kernel size.
-    stride : int
+    stride : int or (int, int)
         Stride parameter.
-    padding : int
+    padding : str, int or (int, int)
         Padding parameter.
     bias : bool
         Determines whether a bias is used.
@@ -86,7 +86,7 @@ def make_conv(
     return conv_block
 
 
-def make_activation(mode):
+def make_activation(mode: str | None) -> nn.Module:
     '''Create activation.'''
 
     if mode is None or mode == 'none':
@@ -111,7 +111,7 @@ def make_activation(mode):
     return activation
 
 
-def make_norm(mode, num_features):
+def make_norm(mode: str | None, num_features: int | None) -> nn.Module:
     '''Create normalization.'''
 
     if mode is None or mode == 'none':

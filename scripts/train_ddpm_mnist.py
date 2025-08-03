@@ -56,9 +56,9 @@ def parse_args():
 
     parser.add_argument('--num-steps', type=int, default=1000, help='Number of time steps')
     parser.add_argument('--schedule', type=str, default='cosine', help='Noise schedule mode')
-    parser.add_argument('--beta-range', type=int, nargs='+', default=[1e-04, 0.02], help='Beta range')
+    parser.add_argument('--beta-range', type=float, nargs='+', default=[1e-04, 0.02], help='Beta range')
     parser.add_argument('--cosine-s', type=float, default=0.008, help='Offset for cosine schedule')
-    parser.add_argument('--sigmoid-range', type=int, nargs='+', default=[-5, 5], help='Sigmoid range')
+    parser.add_argument('--sigmoid-range', type=float, nargs='+', default=[-5.0, 5.0], help='Sigmoid range')
 
     parser.add_argument('--criterion', type=str, default='mse', help='Loss function criterion')
 

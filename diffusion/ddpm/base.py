@@ -11,7 +11,7 @@ from .lr_schedule import make_lr_schedule
 
 
 # define type aliases
-CriterionType = Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
+LossType = Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
 BatchType = torch.Tensor | Sequence[torch.Tensor] | dict[str, torch.Tensor]
 
 
@@ -38,7 +38,7 @@ class DDPM(LightningModule):
         Loss function criterion.
     lr : float
         Initial learning rate.
-    lr_schedule : {"constant", "cosine"}
+    lr_schedule : {"constant", "cosine"} or None
         Learning rate schedule type.
     lr_interval : {"epoch", "step"}
         Learning rate update interval.
@@ -51,7 +51,7 @@ class DDPM(LightningModule):
         self,
         eps_model: nn.Module,
         betas: torch.Tensor | Sequence[float],
-        criterion: str | CriterionType = 'mse',
+        criterion: str | LossType = 'mse',
         lr: float = 1e-04,
         lr_schedule: str | None = 'constant',
         lr_interval: str = 'epoch',

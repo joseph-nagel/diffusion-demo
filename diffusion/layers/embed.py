@@ -1,5 +1,7 @@
 '''Positional and class embedding.'''
 
+from collections.abc import Sequence
+
 import torch
 import torch.nn as nn
 
@@ -23,7 +25,7 @@ class SinusoidalEncoding(nn.Module):
 
     '''
 
-    def __init__(self, embed_dim):
+    def __init__(self, embed_dim: int):
         super().__init__()
 
         # set embedding dimension
@@ -40,13 +42,13 @@ class SinusoidalEncoding(nn.Module):
         omega = self._make_frequencies()
         self.register_buffer('omega', omega)
 
-    def _make_frequencies(self):
+    def _make_frequencies(self) -> torch.Tensor:
         '''Create angular frequencies.'''
         i = torch.arange(self.embed_dim // 2).view(1, -1)
         omega = 1 / (10000 ** (2 * i / self.embed_dim))
         return omega
 
-    def forward(self, t):
+    def forward(self, t: torch.Tensor) -> torch.Tensor:
 
         # ensure (batch_size>=1, 1)-shaped tensor
         if t.numel() == 1:
@@ -75,14 +77,14 @@ class LearnableSinusoidalEncoding(nn.Sequential):
 
     Parameters
     ----------
-    num_features : list of ints
-        List of layer-specific feature numbers.
+    num_features : list or tuple of ints
+        Sequence of layer-specific feature numbers.
     activation : str or None
         Determines the nonlinearity for all layers but the last.
 
     '''
 
-    def __init__(self, num_features, activation='leaky_relu'):
+    def __init__(self, num_features: Sequence[int], activation: str | None = 'leaky_relu'):
 
         if len(num_features) < 2:
             raise ValueError('Number of features needs at least two entries')
@@ -127,14 +129,14 @@ class ClassEmbedding(nn.Embedding):
 
     '''
 
-    def __init__(self, num_classes, embed_dim):
+    def __init__(self, num_classes: int, embed_dim: int):
 
         super().__init__(
             num_embeddings=num_classes,
             embedding_dim=embed_dim
         )
 
-    def forward(self, cids):
+    def forward(self, cids: torch.Tensor) -> torch.Tensor:
 
         # ensure (batch, 1)-shape input
         if cids.ndim in (0, 1):

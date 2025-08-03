@@ -1,7 +1,9 @@
 '''DDPM for tabular data.'''
 
+from collections.abc import Sequence
+
 from ..models import CondDenseModel
-from .base import DDPM
+from .base import DDPM, LossType
 from .noise_schedule import make_beta_schedule
 
 
@@ -20,7 +22,7 @@ class DDPMTab(DDPM):
         Number of input features.
     mid_features : list or tuple of ints
         Hidden layer feature numbers.
-    activation : str
+    activation : str or None
         Nonlinearity type.
     embed_dim : int
         Dimension of the time embedding.
@@ -39,7 +41,7 @@ class DDPMTab(DDPM):
         Loss function criterion.
     lr : float
         Initial learning rate.
-    lr_schedule : {"constant", "cosine"}
+    lr_schedule : {"constant", "cosine"} or None
         Learning rate schedule type.
     lr_interval : {"epoch", "step"}
         Learning rate update interval.
@@ -50,20 +52,20 @@ class DDPMTab(DDPM):
 
     def __init__(
         self,
-        in_features=2,
-        mid_features=(128, 128, 128),
-        activation='leaky_relu',
-        embed_dim=128,
-        num_steps=500,
-        schedule='cosine',
-        beta_range=(1e-04, 0.02),
-        cosine_s=0.008,
-        sigmoid_range=(-5, 5),
-        criterion='mse',
-        lr=1e-04,
-        lr_schedule='constant',
-        lr_interval='epoch',
-        lr_warmup=0
+        in_features: int = 2,
+        mid_features: Sequence[int] = (128, 128, 128),
+        activation: str | None = 'leaky_relu',
+        embed_dim: int = 128,
+        num_steps: int = 500,
+        schedule: str = 'cosine',
+        beta_range: tuple[float, float] = (1e-04, 0.02),
+        cosine_s: float = 0.008,
+        sigmoid_range: tuple[float, float] = (-5.0, 5.0),
+        criterion: str | LossType = 'mse',
+        lr: float = 1e-04,
+        lr_schedule: str | None = 'constant',
+        lr_interval: str = 'epoch',
+        lr_warmup: int = 0
     ):
 
         # construct dense model

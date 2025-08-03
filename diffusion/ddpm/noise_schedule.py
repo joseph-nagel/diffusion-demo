@@ -4,12 +4,12 @@ import torch
 
 
 def make_beta_schedule(
-    num_steps,
-    mode='cosine',
-    beta_range=(1e-04, 0.02),
-    cosine_s=0.008,
-    sigmoid_range=(-5, 5)
-):
+    num_steps: int,
+    mode: str = 'cosine',
+    beta_range: tuple[float, float] = (1e-04, 0.02),
+    cosine_s: float = 0.008,
+    sigmoid_range: tuple[float, float] = (-5.0, 5.0)
+) -> torch.Tensor:
     '''
     Create beta schedule.
 

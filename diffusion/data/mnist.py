@@ -31,13 +31,13 @@ class MNISTDataModule(LightningDataModule):
 
     def __init__(
         self,
-        data_set='mnist',
-        data_dir='.',
-        mean=None,
-        std=None,
-        random_state=42,
-        batch_size=32,
-        num_workers=0
+        data_set: str = 'mnist',
+        data_dir: str = '.',
+        mean: float | None = None,
+        std: float | None = None,
+        random_state: int = 42,
+        batch_size: int = 32,
+        num_workers: int = 0
     ):
 
         super().__init__()
@@ -94,7 +94,7 @@ class MNISTDataModule(LightningDataModule):
             download=True
         )
 
-    def setup(self, stage):
+    def setup(self, stage: str):
         '''Set up train/test/val. datasets.'''
 
         # create train/val. datasets
@@ -119,7 +119,7 @@ class MNISTDataModule(LightningDataModule):
                 transform=self.test_transform
             )
 
-    def train_dataloader(self):
+    def train_dataloader(self) -> DataLoader:
         '''Create train dataloader.'''
         return DataLoader(
             self.train_set,
@@ -130,7 +130,7 @@ class MNISTDataModule(LightningDataModule):
             pin_memory=self.num_workers > 0
         )
 
-    def val_dataloader(self):
+    def val_dataloader(self) -> DataLoader:
         '''Create val. dataloader.'''
         return DataLoader(
             self.val_set,
@@ -141,7 +141,7 @@ class MNISTDataModule(LightningDataModule):
             pin_memory=self.num_workers > 0
         )
 
-    def test_dataloader(self):
+    def test_dataloader(self) -> DataLoader:
         '''Create test dataloader.'''
         return DataLoader(
             self.test_set,

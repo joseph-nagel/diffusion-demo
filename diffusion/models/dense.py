@@ -1,5 +1,8 @@
 '''Fully connected model.'''
 
+from collections.abc import Sequence
+
+import torch
 import torch.nn as nn
 
 from ..layers import CondDense
@@ -10,9 +13,9 @@ class CondDenseModel(nn.Module):
 
     def __init__(
         self,
-        num_features,
-        activation='leaky_relu',
-        embed_dim=None
+        num_features: Sequence[int],
+        activation: str | None = 'leaky_relu',
+        embed_dim: int | None = None
     ):
 
         super().__init__()
@@ -37,7 +40,12 @@ class CondDenseModel(nn.Module):
 
         self.dense_layers = nn.ModuleList(dense_list)
 
-    def forward(self, x, t, cids=None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        t: torch.Tensor,
+        cids: torch.Tensor | None = None
+    ) -> torch.Tensor:
 
         if cids is not None:
             raise NotImplementedError('Class conditioning is not implemented')

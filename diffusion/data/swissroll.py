@@ -1,5 +1,6 @@
 '''Swiss roll datamodule.'''
 
+import numpy as np
 from sklearn.datasets import make_swiss_roll
 from sklearn.model_selection import train_test_split
 import torch
@@ -8,12 +9,12 @@ from lightning import LightningDataModule
 
 
 def make_swiss_roll_2d(
-    num_samples,
-    noise_level=0.5,
-    scaling=0.15,
-    random_state=None,
-    test_size=None
-):
+    num_samples: int,
+    noise_level: float = 0.5,
+    scaling: float = 0.15,
+    random_state: int | None = None,
+    test_size: float | int | None = None
+) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     '''
     Create 2D swiss roll data.
 
@@ -25,9 +26,9 @@ def make_swiss_roll_2d(
         Noise standard deviation.
     scaling : float
         Scaling parameter.
-    random_state : int
+    random_state : int or None
         Random generator seed.
-    test_size : int or float
+    test_size : float, int or None
         Test size parameter.
 
     '''
@@ -86,14 +87,14 @@ class SwissRollDataModule(LightningDataModule):
 
     def __init__(
         self,
-        num_train,
-        num_val=0,
-        num_test=0,
-        noise_level=0.5,
-        scaling=0.15,
-        random_state=42,
-        batch_size=32,
-        num_workers=0
+        num_train: int,
+        num_val: int = 0,
+        num_test: int = 0,
+        noise_level: float = 0.5,
+        scaling: float = 0.15,
+        random_state: int = 42,
+        batch_size: int = 32,
+        num_workers: int = 0
     ):
 
         super().__init__()
@@ -130,18 +131,18 @@ class SwissRollDataModule(LightningDataModule):
         self.x = torch.tensor(x, dtype=torch.float32)
 
     @property
-    def x_train(self):
+    def x_train(self) -> torch.Tensor:
         return self.x[:self.num_train]
 
     @property
-    def x_val(self):
+    def x_val(self) -> torch.Tensor:
         return self.x[self.num_train:self.num_train+self.num_val]
 
     @property
-    def x_test(self):
+    def x_test(self) -> torch.Tensor:
         return self.x[self.num_train+self.num_val:]
 
-    def setup(self, stage):
+    def setup(self, stage: str):
         '''Set up train/test/val. datasets.'''
 
         # create train/val. datasets
@@ -153,7 +154,7 @@ class SwissRollDataModule(LightningDataModule):
         elif stage == 'test':
             self.test_set = TensorDataset(self.x_test)
 
-    def train_dataloader(self):
+    def train_dataloader(self) -> DataLoader:
         '''Create train dataloader.'''
         return DataLoader(
             self.train_set,
@@ -164,7 +165,7 @@ class SwissRollDataModule(LightningDataModule):
             pin_memory=self.num_workers > 0
         )
 
-    def val_dataloader(self):
+    def val_dataloader(self) -> DataLoader:
         '''Create val. dataloader.'''
         return DataLoader(
             self.val_set,
@@ -175,7 +176,7 @@ class SwissRollDataModule(LightningDataModule):
             pin_memory=self.num_workers > 0
         )
 
-    def test_dataloader(self):
+    def test_dataloader(self) -> DataLoader:
         '''Create test dataloader.'''
         return DataLoader(
             self.test_set,

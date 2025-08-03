@@ -1,7 +1,9 @@
 '''DDPM for 2D data.'''
 
+from collections.abc import Sequence
+
 from ..models import UNet
-from .base import DDPM
+from .base import DDPM, LossType
 from .noise_schedule import make_beta_schedule
 
 
@@ -51,7 +53,7 @@ class DDPM2d(DDPM):
         Loss function criterion.
     lr : float
         Initial learning rate.
-    lr_schedule : {"constant", "cosine"}
+    lr_schedule : {"constant", "cosine"} or None
         Learning rate schedule type.
     lr_interval : {"epoch", "step"}
         Learning rate update interval.
@@ -62,26 +64,26 @@ class DDPM2d(DDPM):
 
     def __init__(
         self,
-        in_channels=1,
-        mid_channels=(16, 32, 64),
-        kernel_size=3,
-        padding=1,
-        norm='batch',
-        activation='leaky_relu',
-        num_resblocks=3,
-        upsample_mode='conv_transpose',
-        embed_dim=128,
-        num_classes=None,
-        num_steps=1000,
-        schedule='cosine',
-        beta_range=(1e-04, 0.02),
-        cosine_s=0.008,
-        sigmoid_range=(-5, 5),
-        criterion='mse',
-        lr=1e-04,
-        lr_schedule='constant',
-        lr_interval='epoch',
-        lr_warmup=0
+        in_channels: int = 1,
+        mid_channels: Sequence[int] = (16, 32, 64),
+        kernel_size: int = 3,
+        padding: int = 1,
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu',
+        num_resblocks: int = 3,
+        upsample_mode: str = 'conv_transpose',
+        embed_dim: int = 128,
+        num_classes: int | None = None,
+        num_steps: int = 1000,
+        schedule: str = 'cosine',
+        beta_range: tuple[float, float] = (1e-04, 0.02),
+        cosine_s: float = 0.008,
+        sigmoid_range: tuple[float, float] = (-5.0, 5.0),
+        criterion: str | LossType = 'mse',
+        lr: float = 1e-04,
+        lr_schedule: str | None = 'constant',
+        lr_interval: str = 'epoch',
+        lr_warmup: int = 0
     ):
 
         # construct U-net model

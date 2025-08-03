@@ -1,5 +1,6 @@
 '''Fully connected layers.'''
 
+import torch
 import torch.nn as nn
 
 from .embed import LearnableSinusoidalEncoding
@@ -11,10 +12,10 @@ class CondDense(nn.Module):
 
     def __init__(
         self,
-        in_features,
-        out_features,
-        activation='leaky_relu',
-        embed_dim=None
+        in_features: int,
+        out_features: int,
+        activation: str | None = 'leaky_relu',
+        embed_dim: int | None = None
     ):
 
         super().__init__()
@@ -32,13 +33,17 @@ class CondDense(nn.Module):
         else:
             self.emb = None
 
-    def forward(self, x, t):
+    def forward(self, x: torch.Tensor, t: torch.Tensor | None = None) -> torch.Tensor:
         out = self.linear(x)
 
         # add positional embedding (conditioning)
-        if self.emb is not None:
+        if t is not None and self.emb is not None:
             emb = self.emb(t)
             out = out + emb
+        elif t is not None and self.emb is None:
+            raise TypeError('No temporal embedding')
+        elif t is None and self.emb is not None:
+            raise TypeError('No time passed')
 
         if self.activation is not None:
             out = self.activation(out)

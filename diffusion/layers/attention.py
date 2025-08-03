@@ -27,9 +27,9 @@ class SelfAttention2D(nn.Module):
 
     def __init__(
         self,
-        in_channels,
-        out_channels=None,
-        scale=False
+        in_channels: int,
+        out_channels: int | None = None,
+        scale: bool = False
     ):
 
         super().__init__()
@@ -49,7 +49,7 @@ class SelfAttention2D(nn.Module):
         else:
             self.scale = None
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
 
         b, c, h, w = x.shape
 

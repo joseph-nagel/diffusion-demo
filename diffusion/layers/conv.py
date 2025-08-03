@@ -1,5 +1,6 @@
 '''Convolutional layers.'''
 
+import torch
 import torch.nn as nn
 
 from .embed import LearnableSinusoidalEncoding, ClassEmbedding
@@ -11,13 +12,13 @@ class DoubleConv(nn.Module):
 
     def __init__(
         self,
-        in_channels,
-        out_channels,
-        kernel_size=3,
-        padding=1,
-        bias=True,
-        norm='batch',
-        activation='leaky_relu'
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int | tuple[int, int] = 3,
+        padding: str | int | tuple[int, int] = 1,
+        bias: bool = True,
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu'
     ):
 
         super().__init__()
@@ -44,7 +45,7 @@ class DoubleConv(nn.Module):
             activation=activation
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.conv_block1(x)
         x = self.conv_block2(x)
         return x
@@ -55,15 +56,15 @@ class CondDoubleConv(DoubleConv):
 
     def __init__(
         self,
-        in_channels,
-        out_channels,
-        kernel_size=3,
-        padding=1,
-        bias=True,
-        norm='batch',
-        activation='leaky_relu',
-        embed_dim=None,
-        num_classes=None
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int | tuple[int, int] = 3,
+        padding: str | int | tuple[int, int] = 1,
+        bias: bool = True,
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu',
+        embed_dim: int | None = None,
+        num_classes: int | None = None
     ):
 
         super().__init__(
@@ -91,7 +92,12 @@ class CondDoubleConv(DoubleConv):
         else:
             self.class_embed = None
 
-    def forward(self, x, t=None, cids=None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        t: torch.Tensor | None = None,
+        cids: torch.Tensor | None = None
+    ) -> torch.Tensor:
 
         out = self.conv_block1(x)  # (b, c, h, w)
 
@@ -123,11 +129,11 @@ class ResidualBlock(nn.Module):
 
     def __init__(
         self,
-        num_channels,
-        kernel_size=3,  # the classical resblock has a kernel size of 3
-        bias=True,
-        norm='batch',
-        activation='leaky_relu'
+        num_channels: int,
+        kernel_size: int | tuple[int, int] = 3,  # the classical resblock has a kernel size of 3
+        bias: bool = True,
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu'
     ):
 
         super().__init__()
@@ -156,7 +162,7 @@ class ResidualBlock(nn.Module):
 
         self.activation = make_activation(activation)  # create separate activation instead
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
 
         out = self.conv_block1(x)
         out = self.conv_block2(out)
@@ -173,13 +179,13 @@ class CondResidualBlock(ResidualBlock):
 
     def __init__(
         self,
-        num_channels,
-        kernel_size=3,  # the classical resblock has a kernel size of 3
-        bias=True,
-        norm='batch',
-        activation='leaky_relu',
-        embed_dim=None,
-        num_classes=None
+        num_channels: int,
+        kernel_size: int | tuple[int, int] = 3,  # the classical resblock has a kernel size of 3
+        bias: bool = True,
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu',
+        embed_dim: int | None = None,
+        num_classes: int | None = None
     ):
 
         super().__init__(
@@ -205,7 +211,12 @@ class CondResidualBlock(ResidualBlock):
         else:
             self.class_embed = None
 
-    def forward(self, x, t=None, cids=None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        t: torch.Tensor | None = None,
+        cids: torch.Tensor | None = None
+    ) -> torch.Tensor:
 
         out = self.conv_block1(x)  # (b, c, h, w)
 

@@ -1,5 +1,7 @@
 '''U-net architecture.'''
 
+from collections.abc import Sequence
+
 import torch
 import torch.nn as nn
 
@@ -27,9 +29,9 @@ class UNet(nn.Module):
 
     def __init__(
         self,
-        encoder,
-        decoder,
-        bottleneck=None
+        encoder: nn.Module,
+        decoder: nn.Module,
+        bottleneck: nn.Module | None = None
     ):
 
         super().__init__()
@@ -41,16 +43,16 @@ class UNet(nn.Module):
     @classmethod
     def from_params(
         cls,
-        in_channels=1,
-        mid_channels=(16, 32, 64),
-        kernel_size=3,
-        padding=1,
-        norm='batch',
-        activation='leaky_relu',
-        num_resblocks=3,
-        upsample_mode='conv_transpose',
-        embed_dim=128,
-        num_classes=None
+        in_channels: int = 1,
+        mid_channels: Sequence[int] = (16, 32, 64),
+        kernel_size: int = 3,
+        padding: int = 1,
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu',
+        num_resblocks: int = 3,
+        upsample_mode: str = 'conv_transpose',
+        embed_dim: int = 128,
+        num_classes: int | None = None
     ):
         '''Create instance from architecture parameters.'''
 
@@ -91,7 +93,12 @@ class UNet(nn.Module):
 
         return cls(encoder, decoder, bottleneck)
 
-    def forward(self, x, t, cids=None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        t: torch.Tensor,
+        cids: torch.Tensor | None = None
+    ) -> torch.Tensor:
         x_list = self.encoder(x, t, cids=cids)
 
         if self.bottleneck is not None:
@@ -106,15 +113,15 @@ class UNetEncoder(nn.Module):
 
     def __init__(
         self,
-        in_channels,
-        mid_channels,
-        kernel_size=3,
-        padding=1,
-        pooling=2,
-        norm='batch',
-        activation='leaky_relu',
-        embed_dim=None,
-        num_classes=None
+        in_channels: int,
+        mid_channels: Sequence[int],
+        kernel_size: int = 3,
+        padding: int = 1,
+        pooling: int = 2,
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu',
+        embed_dim: int | None = None,
+        num_classes: int | None = None
     ):
 
         super().__init__()
@@ -153,7 +160,12 @@ class UNetEncoder(nn.Module):
         self.down = nn.ModuleList(down_list)
         self.conv = nn.ModuleList(conv_list)
 
-    def forward(self, x, t, cids=None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        t: torch.Tensor,
+        cids: torch.Tensor | None = None
+    ) -> list[torch.Tensor]:
         x_list = []
 
         x = self.first_conv(x, t, cids=cids)
@@ -172,16 +184,16 @@ class UNetDecoder(nn.Module):
 
     def __init__(
         self,
-        mid_channels,
-        out_channels,
-        kernel_size=3,
-        padding=1,
-        scaling=2,
-        norm='batch',
-        activation='leaky_relu',
-        upsample_mode='conv_transpose',
-        embed_dim=None,
-        num_classes=None
+        mid_channels: Sequence[int],
+        out_channels: int,
+        kernel_size: int = 3,
+        padding: int = 1,
+        scaling: int = 2,
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu',
+        upsample_mode: str = 'conv_transpose',
+        embed_dim: int | None = None,
+        num_classes: int | None = None
     ):
 
         super().__init__()
@@ -253,7 +265,12 @@ class UNetDecoder(nn.Module):
             padding=0
         )
 
-    def forward(self, x_list, t, cids=None):
+    def forward(
+        self,
+        x_list: list[torch.Tensor],
+        t: torch.Tensor,
+        cids: torch.Tensor | None = None
+    ) -> torch.Tensor:
         y = x_list[-1]
 
         for idx, (up, conv) in enumerate(zip(self.up, self.conv)):
@@ -270,13 +287,13 @@ class UNetBottleneck(nn.Module):
 
     def __init__(
         self,
-        num_resblocks,
-        num_channels,
-        kernel_size=3,  # the classical resblock has a kernel size of 3
-        norm='batch',
-        activation='leaky_relu',
-        embed_dim=None,
-        num_classes=None
+        num_resblocks: int,
+        num_channels: int,
+        kernel_size: int = 3,  # the classical resblock has a kernel size of 3
+        norm: str | None = 'batch',
+        activation: str | None = 'leaky_relu',
+        embed_dim: int | None = None,
+        num_classes: int | None = None
     ):
 
         super().__init__()
@@ -296,7 +313,12 @@ class UNetBottleneck(nn.Module):
 
         self.resblocks = nn.ModuleList(resblocks_list)
 
-    def forward(self, x, t, cids=None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        t: torch.Tensor,
+        cids: torch.Tensor | None = None
+    ) -> torch.Tensor:
         for resblock in self.resblocks:
             x = resblock(x, t, cids=cids)
         return x
