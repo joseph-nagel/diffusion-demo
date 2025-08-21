@@ -16,7 +16,7 @@ def make_swiss_roll_2d(
     test_size: float | int | None = None
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     '''
-    Create 2D swiss roll data.
+    Create 2D Swiss roll data.
 
     Parameters
     ----------
@@ -62,7 +62,7 @@ def make_swiss_roll_2d(
 
 class SwissRollDataModule(LightningDataModule):
     '''
-    DataModule for 2D swiss roll data.
+    DataModule for 2D Swiss roll data.
 
     Parameters
     ----------
