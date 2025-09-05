@@ -122,4 +122,3 @@ class DDPM2d(DDPM):
 
         # store hyperparams
         self.save_hyperparameters(logger=True)
-

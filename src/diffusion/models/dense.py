@@ -54,4 +54,3 @@ class CondDenseModel(nn.Module):
             x = dense(x, t)
 
         return x
-

@@ -149,4 +149,3 @@ class ClassEmbedding(nn.Embedding):
         emb = emb.view(cids.numel(), -1)
 
         return emb
-

@@ -99,4 +99,3 @@ class DDPMTab(DDPM):
 
         # store hyperparams
         self.save_hyperparameters(logger=True)
-

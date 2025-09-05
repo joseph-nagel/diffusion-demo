@@ -49,4 +49,3 @@ class CondDense(nn.Module):
             out = self.activation(out)
 
         return out
-

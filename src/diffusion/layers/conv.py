@@ -243,4 +243,3 @@ class CondResidualBlock(ResidualBlock):
         out = self.activation(out)  # (b, c, h, w)
 
         return out
-

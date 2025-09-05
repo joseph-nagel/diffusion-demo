@@ -91,4 +91,3 @@ def make_beta_schedule(
         raise ValueError('Unknown noise schedule type: {}'.format(mode))
 
     return betas
-

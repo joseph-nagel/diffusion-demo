@@ -28,4 +28,3 @@ from .ddpmtab import DDPMTab
 from .lr_schedule import make_lr_schedule
 
 from .noise_schedule import make_beta_schedule
-

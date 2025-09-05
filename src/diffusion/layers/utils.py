@@ -124,4 +124,3 @@ def make_norm(mode: str | None, num_features: int | None) -> nn.Module:
         raise ValueError('Unknown normalization type: {}'.format(mode))
 
     return norm
-

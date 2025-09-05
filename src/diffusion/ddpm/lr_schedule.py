@@ -105,4 +105,3 @@ def _cosine_lr_with_warmup(
         return 0.5 * (1.0 + math.cos(math.pi * progress))
     else:
         raise ValueError('Current step exceeds total number')
-

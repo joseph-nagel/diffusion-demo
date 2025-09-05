@@ -322,4 +322,3 @@ class UNetBottleneck(nn.Module):
         for resblock in self.resblocks:
             x = resblock(x, t, cids=cids)
         return x
-

@@ -12,13 +12,9 @@ They are prepared in such a way that they can be easily modified and extended.
 ## Notebooks
 
 - [Introduction to DDPMs](notebooks/intro_1_ddpm.ipynb)
-
 - [Introduction to DDIMs](notebooks/intro_2_ddim.ipynb)
-
 - [Swiss roll example](notebooks/swissroll.ipynb)
-
 - [Unconditional model on MNIST](notebooks/mnist_uncond.ipynb)
-
 - [Conditional model on MNIST](notebooks/mnist_cond.ipynb)
 
 
@@ -69,4 +65,3 @@ are provided in order to test the unconditional and the conditional model after 
 <p>
   <img src="assets/mnist_reverse.svg" alt="Reverse process generating data from noise" title="Trained reverse process" width="700">
 </p>
-

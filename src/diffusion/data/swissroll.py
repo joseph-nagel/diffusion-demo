@@ -186,4 +186,3 @@ class SwissRollDataModule(LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=self.num_workers > 0
         )
-

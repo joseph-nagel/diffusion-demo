@@ -391,4 +391,3 @@ class DDPM(LightningModule):
             }
 
             return [optimizer], [lr_config]
-
