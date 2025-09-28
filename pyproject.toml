@@ -7,7 +7,7 @@ name = "diffusion"
 version = "0.0.1"
 description = "PyTorch denoising diffusion demo"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [
     {name = "Joseph Nagel", email = "JosephBNagel@gmail.com"}
