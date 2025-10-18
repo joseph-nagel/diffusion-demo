@@ -28,7 +28,7 @@ def make_lr_schedule(
     optimizer : PyTorch optimizer
         Optimizer to apply the learning rate schedule to.
     mode : {'constant', 'cosine'}
-        Type of learning rate schedule.
+        Learning rate schedule type.
     num_total : int
         Total number of steps (for the cosine schedule).
     num_warmup : int
@@ -45,9 +45,7 @@ def make_lr_schedule(
     if mode is None:
         mode = 'constant'
 
-        if num_warmup is None:
-            num_warmup = 0
-        elif num_warmup > 0:
+        if num_warmup > 0:
             raise ValueError('Non-zero number of warmup steps')
 
     # create constant LR scaling function
