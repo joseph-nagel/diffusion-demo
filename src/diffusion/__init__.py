@@ -21,13 +21,11 @@ from . import (
     layers,
     models
 )
-
 from .data import (
     make_swiss_roll_2d,
     SwissRollDataModule,
     MNISTDataModule
 )
-
 from .ddpm import (
     DDPM,
     DDPM2d,
@@ -35,7 +33,6 @@ from .ddpm import (
     make_lr_schedule,
     make_beta_schedule
 )
-
 from .layers import (
     SelfAttention2D,
     DoubleConv,
@@ -51,7 +48,6 @@ from .layers import (
     make_activation,
     make_norm
 )
-
 from .models import (
     CondDenseModel,
     UNet,

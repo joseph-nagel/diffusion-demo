@@ -9,9 +9,7 @@ dense : Fully connected model.
 '''
 
 from . import dense, unet
-
 from .dense import CondDenseModel
-
 from .unet import (
     UNet,
     UNetEncoder,
