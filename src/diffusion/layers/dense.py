@@ -17,11 +17,9 @@ class CondDense(nn.Module):
         activation: str | None = 'leaky_relu',
         embed_dim: int | None = None
     ):
-
         super().__init__()
 
         self.linear = nn.Linear(in_features, out_features)
-
         self.activation = make_activation(activation)
 
         # create multi-layer positional embedding

@@ -10,7 +10,6 @@ from ..layers import ClassEmbedding
 from .lr_schedule import make_lr_schedule
 
 
-# define type aliases
 LossType = Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
 BatchType = torch.Tensor | Sequence[torch.Tensor] | dict[str, torch.Tensor]
 
@@ -57,7 +56,6 @@ class DDPM(LightningModule):
         lr_interval: str = 'epoch',
         lr_warmup: int = 0
     ):
-
         super().__init__()
 
         # set trainable epsilon model

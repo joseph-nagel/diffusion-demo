@@ -31,7 +31,6 @@ class SelfAttention2D(nn.Module):
         out_channels: int | None = None,
         scale: bool = False
     ):
-
         super().__init__()
 
         if out_channels is None:
@@ -50,7 +49,6 @@ class SelfAttention2D(nn.Module):
             self.scale = None
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-
         b, c, h, w = x.shape
 
         # flatten tensor (last axis contains the sequence)

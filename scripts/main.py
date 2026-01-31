@@ -1,5 +1,5 @@
 '''
-Training script.
+Main script.
 
 Example
 -------

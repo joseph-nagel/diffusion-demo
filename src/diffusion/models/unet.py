@@ -33,7 +33,6 @@ class UNet(nn.Module):
         decoder: nn.Module,
         bottleneck: nn.Module | None = None
     ):
-
         super().__init__()
 
         self.encoder = encoder
@@ -123,7 +122,6 @@ class UNetEncoder(nn.Module):
         embed_dim: int | None = None,
         num_classes: int | None = None
     ):
-
         super().__init__()
 
         self.first_conv = CondDoubleConv(
@@ -195,7 +193,6 @@ class UNetDecoder(nn.Module):
         embed_dim: int | None = None,
         num_classes: int | None = None
     ):
-
         super().__init__()
 
         up_list = []
@@ -295,7 +292,6 @@ class UNetBottleneck(nn.Module):
         embed_dim: int | None = None,
         num_classes: int | None = None
     ):
-
         super().__init__()
 
         resblocks_list = []

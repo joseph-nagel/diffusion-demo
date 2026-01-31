@@ -17,7 +17,6 @@ class CondDenseModel(nn.Module):
         activation: str | None = 'leaky_relu',
         embed_dim: int | None = None
     ):
-
         super().__init__()
 
         if len(num_features) < 2:

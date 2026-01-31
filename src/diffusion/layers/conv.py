@@ -20,7 +20,6 @@ class DoubleConv(nn.Module):
         norm: str | None = 'batch',
         activation: str | None = 'leaky_relu'
     ):
-
         super().__init__()
 
         self.conv_block1 = make_conv(
@@ -66,7 +65,6 @@ class CondDoubleConv(DoubleConv):
         embed_dim: int | None = None,
         num_classes: int | None = None
     ):
-
         super().__init__(
             in_channels,
             out_channels,
@@ -98,7 +96,6 @@ class CondDoubleConv(DoubleConv):
         t: torch.Tensor | None = None,
         cids: torch.Tensor | None = None
     ) -> torch.Tensor:
-
         out = self.conv_block1(x)  # (b, c, h, w)
 
         # add positional embedding channelwise after first conv block
@@ -135,7 +132,6 @@ class ResidualBlock(nn.Module):
         norm: str | None = 'batch',
         activation: str | None = 'leaky_relu'
     ):
-
         super().__init__()
 
         self.conv_block1 = make_conv(
@@ -163,14 +159,10 @@ class ResidualBlock(nn.Module):
         self.activation = make_activation(activation)  # create separate activation instead
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-
         out = self.conv_block1(x)
         out = self.conv_block2(out)
-
         out = out + x  # add input before final activation (additive skip connection)
-
         out = self.activation(out)
-
         return out
 
 
@@ -187,7 +179,6 @@ class CondResidualBlock(ResidualBlock):
         embed_dim: int | None = None,
         num_classes: int | None = None
     ):
-
         super().__init__(
             num_channels,
             kernel_size=kernel_size,
@@ -217,7 +208,6 @@ class CondResidualBlock(ResidualBlock):
         t: torch.Tensor | None = None,
         cids: torch.Tensor | None = None
     ) -> torch.Tensor:
-
         out = self.conv_block1(x)  # (b, c, h, w)
 
         # add positional embedding channelwise after first conv block

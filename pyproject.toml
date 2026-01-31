@@ -20,11 +20,7 @@ dependencies = [
     "lightning",
     "tensorboard",
     "mlflow",
-    "scikit-learn"
-]
-
-[project.optional-dependencies]
-interactive = [
+    "scikit-learn",
     "matplotlib",
     "notebook"
 ]

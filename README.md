@@ -49,10 +49,10 @@ It can then be reached under [localhost:5000](http://localhost:5000).
 The second application is based on the MNIST dataset.
 Here, one can construct a DDPM that is either unconditioned (generates randomly) or conditioned on the class (generates controllably).
 Such models generating images of handwritten digits can be learned by running the main script in the following ways:
-```
+```bash
 python scripts/main.py fit --config config/mnist_uncond.yaml
 ```
-```
+```bash
 python scripts/main.py fit --config config/mnist_cond.yaml
 ```
 Two dedicated notebooks [here](notebooks/mnist_uncond.ipynb) and [here](notebooks/mnist_cond.ipynb)

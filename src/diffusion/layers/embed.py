@@ -130,7 +130,6 @@ class ClassEmbedding(nn.Embedding):
     '''
 
     def __init__(self, num_classes: int, embed_dim: int):
-
         super().__init__(
             num_embeddings=num_classes,
             embedding_dim=embed_dim
