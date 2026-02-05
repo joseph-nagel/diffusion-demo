@@ -96,7 +96,6 @@ class SwissRollDataModule(LightningDataModule):
         batch_size: int = 32,
         num_workers: int = 0
     ):
-
         super().__init__()
 
         # set data parameters

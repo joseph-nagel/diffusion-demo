@@ -78,10 +78,7 @@ class DDPM(LightningModule):
         self.lr_warmup = abs(int(lr_warmup))
 
         # store hyperparams
-        self.save_hyperparameters(
-            ignore='eps_model',
-            logger=True
-        )
+        self.save_hyperparameters(ignore='eps_model', logger=True)
 
         # set noise scheduling params
         betas = torch.as_tensor(betas).view(-1)  # note that betas[0] corresponds to t = 1.0
@@ -295,19 +292,16 @@ class DDPM(LightningModule):
 
         if isinstance(batch, torch.Tensor):
             x_batch = batch
-
             if self.class_cond:
                 raise RuntimeError('No labels found')
 
         elif isinstance(batch, (tuple, list)):
             x_batch = batch[0]
-
             if self.class_cond:
                 y_batch = batch[1]
 
         elif isinstance(batch, dict):
             x_batch = batch['features']
-
             if self.class_cond:
                 y_batch = batch['labels']
 

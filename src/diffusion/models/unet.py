@@ -137,8 +137,8 @@ class UNetEncoder(nn.Module):
 
         down_list = []
         conv_list = []
-        for ch1, ch2 in zip(mid_channels[:-1], mid_channels[1:]):
 
+        for ch1, ch2 in zip(mid_channels[:-1], mid_channels[1:]):
             down = nn.MaxPool2d(kernel_size=pooling)
 
             conv = CondDoubleConv(
@@ -197,6 +197,7 @@ class UNetDecoder(nn.Module):
 
         up_list = []
         conv_list = []
+
         for ch1, ch2 in zip(mid_channels[:-1], mid_channels[1:]):
 
             # bilinear upsampling
@@ -295,6 +296,7 @@ class UNetBottleneck(nn.Module):
         super().__init__()
 
         resblocks_list = []
+
         for _ in range(num_resblocks):
             resblock = CondResidualBlock(
                 num_channels,

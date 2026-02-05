@@ -39,7 +39,6 @@ class MNISTDataModule(LightningDataModule):
         batch_size: int = 32,
         num_workers: int = 0
     ):
-
         super().__init__()
 
         # set dataset
@@ -81,13 +80,11 @@ class MNISTDataModule(LightningDataModule):
 
     def prepare_data(self):
         '''Download data.'''
-
         train_set = self.data_class(
             self.data_dir,
             train=True,
             download=True
         )
-
         test_set = self.data_class(
             self.data_dir,
             train=False,

@@ -25,6 +25,7 @@ class CondDenseModel(nn.Module):
         num_layers = len(num_features) - 1
 
         dense_list = []
+
         for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
             is_not_last = (idx < num_layers - 1)
 
