@@ -1,4 +1,4 @@
-'''
+"""
 Denoising diffusion models.
 
 Modules
@@ -9,14 +9,14 @@ ddpmtab : DDPM for tabular data.
 lr_schedule : Learning rate schedules.
 noise_schedule : Beta schedules.
 
-'''
+"""
 
 from . import (
     base,
     ddpm2d,
     ddpmtab,
     lr_schedule,
-    noise_schedule
+    noise_schedule,
 )
 from .base import DDPM
 from .ddpm2d import DDPM2d

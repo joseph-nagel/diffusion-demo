@@ -1,15 +1,10 @@
-'''Modeling utilities.'''
+"""Modeling utilities."""
 
 import torch.nn as nn
 
 
-def make_dense(
-    in_features: int,
-    out_features: int,
-    bias: bool = True,
-    activation: str | None = None
-) -> nn.Sequential:
-    '''
+def make_dense(in_features: int, out_features: int, bias: bool = True, activation: str | None = None) -> nn.Sequential:
+    """
     Create fully connected layer.
 
     Parameters
@@ -23,7 +18,7 @@ def make_dense(
     activation : str or None
         Determines the nonlinearity.
 
-    '''
+    """
 
     linear = nn.Linear(in_features, out_features, bias=bias)
     activation = make_activation(activation)
@@ -42,9 +37,9 @@ def make_conv(
     padding: str | int | tuple[int, int] = 1,
     bias: bool = True,
     norm: str | None = None,
-    activation: str | None = None
+    activation: str | None = None,
 ) -> nn.Sequential:
-    '''
+    """
     Create convolutional layer.
 
     Parameters
@@ -66,7 +61,7 @@ def make_conv(
     activation : str or None
         Determines the nonlinearity.
 
-    '''
+    """
 
     conv = nn.Conv2d(
         in_channels,
@@ -74,53 +69,53 @@ def make_conv(
         kernel_size=kernel_size,
         stride=stride,
         padding=padding,
-        bias=bias  # the bias should be disabled if a batchnorm directly follows after the convolution
+        bias=bias,  # the bias should be disabled if a batchnorm directly follows after the convolution
     )
 
     activation = make_activation(activation)
     norm = make_norm(norm, num_features=out_channels)
 
-    layers = [conv, activation, norm]  # note that the normalization follows the activation (which could be reversed of course)
+    layers = [conv, activation, norm]  # note that normalization follows activation (which could be reversed)
     conv_block = nn.Sequential(*layers)
 
     return conv_block
 
 
 def make_activation(mode: str | None) -> nn.Module:
-    '''Create activation.'''
+    """Create activation."""
 
-    if mode is None or mode == 'none':
+    if mode is None or mode == "none":
         activation = nn.Identity()
-    elif mode == 'sigmoid':
+    elif mode == "sigmoid":
         activation = nn.Sigmoid()
-    elif mode == 'tanh':
+    elif mode == "tanh":
         activation = nn.Tanh()
-    elif mode == 'relu':
+    elif mode == "relu":
         activation = nn.ReLU()
-    elif mode == 'leaky_relu':
+    elif mode == "leaky_relu":
         activation = nn.LeakyReLU()
-    elif mode == 'elu':
+    elif mode == "elu":
         activation = nn.ELU()
-    elif mode == 'softplus':
+    elif mode == "softplus":
         activation = nn.Softplus()
-    elif mode == 'swish':
+    elif mode == "swish":
         activation = nn.SiLU()
     else:
-        raise ValueError('Unknown activation function: {}'.format(mode))
+        raise ValueError("Unknown activation function: {}".format(mode))
 
     return activation
 
 
 def make_norm(mode: str | None, num_features: int | None) -> nn.Module:
-    '''Create normalization.'''
+    """Create normalization."""
 
-    if mode is None or mode == 'none':
+    if mode is None or mode == "none":
         norm = nn.Identity()
-    elif mode == 'batch':
+    elif mode == "batch":
         norm = nn.BatchNorm2d(num_features)
-    elif mode == 'instance':
+    elif mode == "instance":
         norm = nn.InstanceNorm2d(num_features)
     else:
-        raise ValueError('Unknown normalization type: {}'.format(mode))
+        raise ValueError("Unknown normalization type: {}".format(mode))
 
     return norm

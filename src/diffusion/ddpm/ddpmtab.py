@@ -1,4 +1,4 @@
-'''DDPM for tabular data.'''
+"""DDPM for tabular data."""
 
 from collections.abc import Sequence
 
@@ -8,7 +8,7 @@ from .noise_schedule import make_beta_schedule
 
 
 class DDPMTab(DDPM):
-    '''
+    """
     DDPM for problems with tabular data.
 
     Summary
@@ -37,35 +37,35 @@ class DDPMTab(DDPM):
     sigmoid_range : (float, float)
         Input range for evaluating the sigmoid in
         the corresponding sqrt.(alpha_bar) schedule.
-    criterion : {'mse', 'mae'} or callable
+    criterion : {"mse", "mae"} or callable
         Loss function criterion.
     lr : float
         Initial learning rate.
-    lr_schedule : {'constant', 'cosine'} or None
+    lr_schedule : {"constant", "cosine"} or None
         Learning rate schedule type.
-    lr_interval : {'epoch', 'step'}
+    lr_interval : {"epoch", "step"}
         Learning rate update interval.
     lr_warmup : int
         Warmup steps/epochs.
 
-    '''
+    """
 
     def __init__(
         self,
         in_features: int = 2,
         mid_features: Sequence[int] = (128, 128, 128),
-        activation: str | None = 'leaky_relu',
+        activation: str | None = "leaky_relu",
         embed_dim: int = 128,
         num_steps: int = 500,
-        schedule: str = 'cosine',
+        schedule: str = "cosine",
         beta_range: tuple[float, float] = (1e-04, 0.02),
         cosine_s: float = 0.008,
         sigmoid_range: tuple[float, float] = (-5.0, 5.0),
-        criterion: str | LossType = 'mse',
+        criterion: str | LossType = "mse",
         lr: float = 1e-04,
-        lr_schedule: str | None = 'constant',
-        lr_interval: str = 'epoch',
-        lr_warmup: int = 0
+        lr_schedule: str | None = "constant",
+        lr_interval: str = "epoch",
+        lr_warmup: int = 0,
     ):
 
         # construct dense model
@@ -74,7 +74,7 @@ class DDPMTab(DDPM):
         eps_model = CondDenseModel(
             num_features=num_features,
             activation=activation,
-            embed_dim=embed_dim
+            embed_dim=embed_dim,
         )
 
         # create noise schedule
@@ -83,7 +83,7 @@ class DDPMTab(DDPM):
             mode=schedule,
             beta_range=beta_range,
             cosine_s=cosine_s,
-            sigmoid_range=sigmoid_range
+            sigmoid_range=sigmoid_range,
         )
 
         # initialize DDPM class
@@ -94,8 +94,8 @@ class DDPMTab(DDPM):
             lr=lr,
             lr_schedule=lr_schedule,
             lr_interval=lr_interval,
-            lr_warmup=lr_warmup
+            lr_warmup=lr_warmup,
         )
 
         # store hyperparams
-        self.save_hyperparameters(logger=True)
+        self.save_hyperparameters()

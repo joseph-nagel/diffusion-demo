@@ -1,4 +1,4 @@
-'''Positional and class embedding.'''
+"""Positional and class embedding."""
 
 from collections.abc import Sequence
 
@@ -9,7 +9,7 @@ from .utils import make_dense
 
 
 class SinusoidalEncoding(nn.Module):
-    '''
+    """
     Sinusoidal position encoding.
 
     Summary
@@ -23,7 +23,7 @@ class SinusoidalEncoding(nn.Module):
     embed_dim : int
         Dimensionality of the embedding space.
 
-    '''
+    """
 
     def __init__(self, embed_dim: int):
         super().__init__()
@@ -32,18 +32,18 @@ class SinusoidalEncoding(nn.Module):
         embed_dim = abs(embed_dim)
 
         if embed_dim < 2:
-            raise ValueError('At least two embedding dimensions required')
+            raise ValueError("At least two embedding dimensions required")
         elif embed_dim % 2 != 0:
-            raise ValueError('Dimensionality has to be an even number')
+            raise ValueError("Dimensionality has to be an even number")
 
         self.embed_dim = embed_dim
 
         # create angular frequencies
         omega = self._make_frequencies()
-        self.register_buffer('omega', omega)
+        self.register_buffer("omega", omega)
 
     def _make_frequencies(self) -> torch.Tensor:
-        '''Create angular frequencies.'''
+        """Create angular frequencies."""
         i = torch.arange(self.embed_dim // 2).view(1, -1)
         omega = 1 / (10000 ** (2 * i / self.embed_dim))
         return omega
@@ -54,20 +54,20 @@ class SinusoidalEncoding(nn.Module):
         if t.numel() == 1:
             t = t.view(1, 1)
         elif t.ndim != 2 or t.shape[1] != 1:
-            raise ValueError('Invalid shape encountered: {}'.format(t.shape))
+            raise ValueError("Invalid shape encountered: {}".format(t.shape))
 
         device = t.device
         batch_size = t.shape[0]
 
         emb = torch.zeros(batch_size, self.embed_dim, device=device)
-        emb[:,0::2] = torch.sin(self.omega * t)
-        emb[:,1::2] = torch.cos(self.omega * t)
+        emb[:, 0::2] = torch.sin(self.omega * t)
+        emb[:, 1::2] = torch.cos(self.omega * t)
 
         return emb
 
 
 class LearnableSinusoidalEncoding(nn.Sequential):
-    '''
+    """
     Learnable sinusoidal position encoding.
 
     Summary
@@ -82,12 +82,12 @@ class LearnableSinusoidalEncoding(nn.Sequential):
     activation : str or None
         Determines the nonlinearity for all layers but the last.
 
-    '''
+    """
 
-    def __init__(self, num_features: Sequence[int], activation: str | None = 'leaky_relu'):
+    def __init__(self, num_features: Sequence[int], activation: str | None = "leaky_relu"):
 
         if len(num_features) < 2:
-            raise ValueError('Number of features needs at least two entries')
+            raise ValueError("Number of features needs at least two entries")
 
         num_dense_layers = len(num_features) - 1
 
@@ -98,12 +98,12 @@ class LearnableSinusoidalEncoding(nn.Sequential):
         # create FC layers
         dense_list = []
         for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
-            is_not_last = (idx < num_dense_layers - 1)
+            is_not_last = idx < num_dense_layers - 1
 
             dense = make_dense(
                 in_features,
                 out_features,
-                activation=activation if is_not_last else None  # set activation for all layers except the last
+                activation=activation if is_not_last else None,  # set activation for all layers except the last
             )
 
             dense_list.append(dense)
@@ -112,7 +112,7 @@ class LearnableSinusoidalEncoding(nn.Sequential):
 
 
 class ClassEmbedding(nn.Embedding):
-    '''
+    """
     Class embedding as a lookup table.
 
     Summary
@@ -127,13 +127,10 @@ class ClassEmbedding(nn.Embedding):
     embed_dim : int
         Dimensionality of the embedding space.
 
-    '''
+    """
 
     def __init__(self, num_classes: int, embed_dim: int):
-        super().__init__(
-            num_embeddings=num_classes,
-            embedding_dim=embed_dim
-        )
+        super().__init__(num_embeddings=num_classes, embedding_dim=embed_dim)
 
     def forward(self, cids: torch.Tensor) -> torch.Tensor:
 
@@ -141,7 +138,7 @@ class ClassEmbedding(nn.Embedding):
         if cids.ndim in (0, 1):
             cids = cids.view(-1, 1)
         elif cids.ndim != 2 or cids.shape[1] != 1:
-            raise ValueError('Invalid tensor shape')
+            raise ValueError("Invalid tensor shape")
 
         # return (batch, embed_dim)-shaped output
         emb = super().forward(cids.int())

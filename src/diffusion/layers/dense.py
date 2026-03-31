@@ -1,4 +1,4 @@
-'''Fully connected layers.'''
+"""Fully connected layers."""
 
 import torch
 import torch.nn as nn
@@ -8,14 +8,14 @@ from .utils import make_activation
 
 
 class CondDense(nn.Module):
-    '''Conditional fully connected layer.'''
+    """Conditional fully connected layer."""
 
     def __init__(
         self,
         in_features: int,
         out_features: int,
-        activation: str | None = 'leaky_relu',
-        embed_dim: int | None = None
+        activation: str | None = "leaky_relu",
+        embed_dim: int | None = None,
     ):
         super().__init__()
 
@@ -25,8 +25,12 @@ class CondDense(nn.Module):
         # create multi-layer positional embedding
         if embed_dim is not None:
             self.emb = LearnableSinusoidalEncoding(
-                [embed_dim, out_features, out_features],  # stack two learnable dense layers after the sinusoidal encoding
-                activation=activation
+                [
+                    embed_dim,
+                    out_features,
+                    out_features,
+                ],  # stack two learnable dense layers after the sinusoidal encoding
+                activation=activation,
             )
         else:
             self.emb = None
@@ -39,9 +43,9 @@ class CondDense(nn.Module):
             emb = self.emb(t)
             out = out + emb
         elif t is not None and self.emb is None:
-            raise TypeError('No temporal embedding')
+            raise TypeError("No temporal embedding")
         elif t is None and self.emb is not None:
-            raise TypeError('No time passed')
+            raise TypeError("No time passed")
 
         if self.activation is not None:
             out = self.activation(out)

@@ -1,4 +1,4 @@
-'''DDPM for 2D data.'''
+"""DDPM for 2D data."""
 
 from collections.abc import Sequence
 
@@ -8,7 +8,7 @@ from .noise_schedule import make_beta_schedule
 
 
 class DDPM2d(DDPM):
-    '''
+    """
     DDPM for problems with two spatial dimensions.
 
     Summary
@@ -49,18 +49,18 @@ class DDPM2d(DDPM):
     sigmoid_range : (float, float)
         Input range for evaluating the sigmoid in
         the corresponding sqrt.(alpha_bar) schedule.
-    criterion : {'mse', 'mae'} or callable
+    criterion : {"mse", "mae"} or callable
         Loss function criterion.
     lr : float
         Initial learning rate.
-    lr_schedule : {'constant', 'cosine'} or None
+    lr_schedule : {"constant", "cosine"} or None
         Learning rate schedule type.
-    lr_interval : {'epoch', 'step'}
+    lr_interval : {"epoch", "step"}
         Learning rate update interval.
     lr_warmup : int
         Warmup steps/epochs.
 
-    '''
+    """
 
     def __init__(
         self,
@@ -68,22 +68,22 @@ class DDPM2d(DDPM):
         mid_channels: Sequence[int] = (16, 32, 64),
         kernel_size: int = 3,
         padding: int = 1,
-        norm: str | None = 'batch',
-        activation: str | None = 'leaky_relu',
+        norm: str | None = "batch",
+        activation: str | None = "leaky_relu",
         num_resblocks: int = 3,
-        upsample_mode: str = 'conv_transpose',
+        upsample_mode: str = "conv_transpose",
         embed_dim: int = 128,
         num_classes: int | None = None,
         num_steps: int = 1000,
-        schedule: str = 'cosine',
+        schedule: str = "cosine",
         beta_range: tuple[float, float] = (1e-04, 0.02),
         cosine_s: float = 0.008,
         sigmoid_range: tuple[float, float] = (-5.0, 5.0),
-        criterion: str | LossType = 'mse',
+        criterion: str | LossType = "mse",
         lr: float = 1e-04,
-        lr_schedule: str | None = 'constant',
-        lr_interval: str = 'epoch',
-        lr_warmup: int = 0
+        lr_schedule: str | None = "constant",
+        lr_interval: str = "epoch",
+        lr_warmup: int = 0,
     ):
 
         # construct U-net model
@@ -97,7 +97,7 @@ class DDPM2d(DDPM):
             num_resblocks=num_resblocks,
             upsample_mode=upsample_mode,
             embed_dim=embed_dim,
-            num_classes=num_classes
+            num_classes=num_classes,
         )
 
         # create noise schedule
@@ -106,7 +106,7 @@ class DDPM2d(DDPM):
             mode=schedule,
             beta_range=beta_range,
             cosine_s=cosine_s,
-            sigmoid_range=sigmoid_range
+            sigmoid_range=sigmoid_range,
         )
 
         # initialize DDPM class
@@ -117,8 +117,8 @@ class DDPM2d(DDPM):
             lr=lr,
             lr_schedule=lr_schedule,
             lr_interval=lr_interval,
-            lr_warmup=lr_warmup
+            lr_warmup=lr_warmup,
         )
 
         # store hyperparams
-        self.save_hyperparameters(logger=True)
+        self.save_hyperparameters()

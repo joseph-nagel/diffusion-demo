@@ -1,4 +1,4 @@
-seed_everything: null
+seed_everything: 42
 
 ckpt_path: null
 

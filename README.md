@@ -23,7 +23,7 @@ They are prepared in such a way that they can be easily modified and extended.
 As a first example, a generative DDPM is trained on a 2D Swiss roll distribution.
 The main training script can be called to that end with a config file
 that allows one to adjust the problem setup and model definition:
-```
+```bash
 python scripts/main.py fit --config config/swissroll.yaml
 ```
 After the training has finished, the final model can be tested and analyzed in [this notebook](notebooks/swissroll.ipynb).

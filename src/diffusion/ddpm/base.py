@@ -1,4 +1,4 @@
-'''DDPM base model.'''
+"""DDPM base model."""
 
 from collections.abc import Callable, Sequence
 
@@ -15,7 +15,7 @@ BatchType = torch.Tensor | Sequence[torch.Tensor] | dict[str, torch.Tensor]
 
 
 class DDPM(LightningModule):
-    '''
+    """
     Plain vanilla DDPM module.
 
     Summary
@@ -33,28 +33,28 @@ class DDPM(LightningModule):
         Trainable noise-predicting model.
     betas : array-like
         Beta parameter schedule.
-    criterion : {'mse', 'mae'} or callable
+    criterion : {"mse", "mae"} or callable
         Loss function criterion.
     lr : float
         Initial learning rate.
-    lr_schedule : {'constant', 'cosine'} or None
+    lr_schedule : {"constant", "cosine"} or None
         Learning rate schedule type.
-    lr_interval : {'epoch', 'step'}
+    lr_interval : {"epoch", "step"}
         Learning rate update interval.
     lr_warmup : int
         Warmup steps/epochs.
 
-    '''
+    """
 
     def __init__(
         self,
         eps_model: nn.Module,
         betas: torch.Tensor | Sequence[float],
-        criterion: str | LossType = 'mse',
+        criterion: str | LossType = "mse",
         lr: float = 1e-04,
-        lr_schedule: str | None = 'constant',
-        lr_interval: str = 'epoch',
-        lr_warmup: int = 0
+        lr_schedule: str | None = "constant",
+        lr_interval: str = "epoch",
+        lr_warmup: int = 0,
     ):
         super().__init__()
 
@@ -62,14 +62,14 @@ class DDPM(LightningModule):
         self.set_model(eps_model)
 
         # set loss function criterion
-        if criterion == 'mse':
-            self.criterion = nn.MSELoss(reduction='mean')
-        elif criterion == 'mae':
-            self.criterion = nn.L1Loss(reduction='mean')
+        if criterion == "mse":
+            self.criterion = nn.MSELoss(reduction="mean")
+        elif criterion == "mae":
+            self.criterion = nn.L1Loss(reduction="mean")
         elif callable(criterion):
             self.criterion = criterion
         else:
-            raise ValueError('Criterion could not be determined')
+            raise ValueError("Criterion could not be determined")
 
         # set LR params
         self.lr = abs(lr)
@@ -78,13 +78,13 @@ class DDPM(LightningModule):
         self.lr_warmup = abs(int(lr_warmup))
 
         # store hyperparams
-        self.save_hyperparameters(ignore='eps_model', logger=True)
+        self.save_hyperparameters(ignore="eps_model")
 
         # set noise scheduling params
         betas = torch.as_tensor(betas).view(-1)  # note that betas[0] corresponds to t = 1.0
 
         if betas.min() <= 0 or betas.max() >= 1:
-            raise ValueError('Invalid beta values encountered')
+            raise ValueError("Invalid beta values encountered")
 
         alphas = 1.0 - betas
         alphas_bar = torch.cumprod(alphas, dim=0)
@@ -92,13 +92,13 @@ class DDPM(LightningModule):
         betas_tilde = (1 - alphas_bar[:-1]) / (1 - alphas_bar[1:]) * betas[1:]
         betas_tilde = nn.functional.pad(betas_tilde, pad=(1, 0), value=0.0)  # ensure betas_tilde[0] = 0.0
 
-        self.register_buffer('betas', betas)
-        self.register_buffer('alphas', alphas)
-        self.register_buffer('alphas_bar', alphas_bar)
-        self.register_buffer('betas_tilde', betas_tilde)
+        self.register_buffer("betas", betas)
+        self.register_buffer("alphas", alphas)
+        self.register_buffer("alphas_bar", alphas_bar)
+        self.register_buffer("betas_tilde", betas_tilde)
 
     def set_model(self, eps_model: nn.Module) -> None:
-        '''Set noise-predicting model.'''
+        """Set noise-predicting model."""
         self.eps_model = eps_model
 
         # check whether class conditioning is used
@@ -106,12 +106,12 @@ class DDPM(LightningModule):
 
     @property
     def num_steps(self) -> int:
-        '''Get the total number of time steps.'''
+        """Get the total number of time steps."""
         return len(self.betas)
 
     @staticmethod
     def _idx2cont_time(tidx: torch.Tensor, dtype: str | None = None) -> torch.Tensor:
-        '''Transform discrete index to continuous time.'''
+        """Transform discrete index to continuous time."""
         t = tidx + 1  # note that tidx = 0 corresponds to t = 1.0
         t = t.float() if dtype is None else t.to(dtype)
         return t
@@ -120,13 +120,13 @@ class DDPM(LightningModule):
         self,
         x: torch.Tensor,
         t: torch.Tensor,
-        cids: torch.Tensor | None = None
+        cids: torch.Tensor | None = None,
     ) -> torch.Tensor:
-        '''Run the noise-predicting model.'''
+        """Run the noise-predicting model."""
         return self.eps_model(x, t, cids=cids)
 
     def diffuse_step(self, x: torch.Tensor, tidx: int) -> torch.Tensor:
-        '''Simulate single forward process step.'''
+        """Simulate single forward process step."""
         beta = self.betas[tidx]
 
         eps = torch.randn_like(x)
@@ -135,7 +135,7 @@ class DDPM(LightningModule):
         return x_noisy
 
     def diffuse_all_steps(self, x0: torch.Tensor) -> torch.Tensor:
-        '''Simulate and return all forward process steps.'''
+        """Simulate and return all forward process steps."""
         x_noisy = torch.zeros(self.num_steps + 1, *x0.shape, device=x0.device)
 
         x_noisy[0] = x0
@@ -148,9 +148,9 @@ class DDPM(LightningModule):
         self,
         x0: torch.Tensor,
         tids: torch.Tensor,
-        return_eps: bool = False
+        return_eps: bool = False,
     ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
-        '''Simulate multiple forward steps at once.'''
+        """Simulate multiple forward steps at once."""
         alpha_bar = self.alphas_bar[tids]
 
         eps = torch.randn_like(x0)
@@ -170,9 +170,9 @@ class DDPM(LightningModule):
         x: torch.Tensor,
         tids: torch.Tensor,
         cids: torch.Tensor | None = None,
-        random_sample: bool = False
+        random_sample: bool = False,
     ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
-        '''Perform single reverse process step.'''
+        """Perform single reverse process step."""
 
         # set up time variables
         tids = torch.as_tensor(tids, device=x.device).view(-1, 1)  # ensure (batch_size>=1, 1)-shaped tensor
@@ -211,19 +211,18 @@ class DDPM(LightningModule):
 
     @torch.no_grad()
     def denoise_all_steps(self, xT: torch.Tensor, cids: torch.Tensor | None = None) -> torch.Tensor:
-        '''Perform and return all reverse process steps.'''
+        """Perform and return all reverse process steps."""
         x_denoised = torch.zeros(self.num_steps + 1, *(xT.shape), device=xT.device)
 
         x_denoised[0] = xT
         for idx, tidx in enumerate(reversed(range(self.num_steps))):
-
             # generate random sample
             if tidx > 0:
                 x_denoised[idx + 1] = self.denoise_step(
                     x_denoised[idx],
                     tidx,
                     cids=cids,
-                    random_sample=True
+                    random_sample=True,
                 )
 
             # take the mean in the last step
@@ -232,7 +231,7 @@ class DDPM(LightningModule):
                     x_denoised[idx],
                     tidx,
                     cids=cids,
-                    random_sample=False
+                    random_sample=False,
                 )
 
         return x_denoised
@@ -242,20 +241,21 @@ class DDPM(LightningModule):
         self,
         sample_shape: Sequence[int],
         cids: torch.Tensor | None = None,
-        num_samples: int = 1
+        num_samples: int = 1,
     ) -> torch.Tensor:
-        '''Generate random samples through the reverse process.'''
-        x_denoised = torch.randn(num_samples, *sample_shape, device=self.device)  # Lightning modules have a device attribute
+        """Generate random samples through the reverse process."""
+        x_denoised = torch.randn(
+            num_samples, *sample_shape, device=self.device
+        )  # Lightning modules have a device attribute
 
         for tidx in reversed(range(self.num_steps)):
-
             # generate random sample
             if tidx > 0:
                 x_denoised = self.denoise_step(
                     x_denoised,
                     tidx,
                     cids=cids,
-                    random_sample=True
+                    random_sample=True,
                 )
 
             # take the mean in the last step
@@ -264,13 +264,13 @@ class DDPM(LightningModule):
                     x_denoised,
                     tidx,
                     cids=cids,
-                    random_sample=False
+                    random_sample=False,
                 )
 
         return x_denoised
 
     def loss(self, x: torch.Tensor, cids: torch.Tensor | None = None) -> torch.Tensor:
-        '''Compute stochastic loss.'''
+        """Compute stochastic loss."""
 
         # draw random time steps
         tids = torch.randint(0, self.num_steps, size=(x.shape[0], 1), device=x.device)
@@ -288,12 +288,12 @@ class DDPM(LightningModule):
         return loss
 
     def _get_batch(self, batch: BatchType) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
-        '''Get batch features and labels (if needed).'''
+        """Get batch features and labels (if needed)."""
 
         if isinstance(batch, torch.Tensor):
             x_batch = batch
             if self.class_cond:
-                raise RuntimeError('No labels found')
+                raise RuntimeError("No labels found")
 
         elif isinstance(batch, (tuple, list)):
             x_batch = batch[0]
@@ -301,12 +301,12 @@ class DDPM(LightningModule):
                 y_batch = batch[1]
 
         elif isinstance(batch, dict):
-            x_batch = batch['features']
+            x_batch = batch["features"]
             if self.class_cond:
-                y_batch = batch['labels']
+                y_batch = batch["labels"]
 
         else:
-            raise TypeError('Invalid batch type encountered: {}'.format(type(batch)))
+            raise TypeError("Invalid batch type encountered: {}".format(type(batch)))
 
         if self.class_cond:
             return x_batch, y_batch
@@ -321,7 +321,7 @@ class DDPM(LightningModule):
         else:
             loss = self.loss(batch[0], cids=batch[1])
 
-        self.log('train_loss', loss.item())  # Lightning logs batch-wise scalars during training per default
+        self.log("train_loss", loss.item())  # Lightning logs batch-wise scalars during training per default
         return loss
 
     def validation_step(self, batch: BatchType, batch_idx: int) -> torch.Tensor:
@@ -332,7 +332,7 @@ class DDPM(LightningModule):
         else:
             loss = self.loss(batch[0], cids=batch[1])
 
-        self.log('val_loss', loss.item())  # Lightning automatically averages scalars over batches for validation
+        self.log("val_loss", loss.item())  # Lightning automatically averages scalars over batches for validation
         return loss
 
     def test_step(self, batch: BatchType, batch_idx: int) -> torch.Tensor:
@@ -343,7 +343,7 @@ class DDPM(LightningModule):
         else:
             loss = self.loss(batch[0], cids=batch[1])
 
-        self.log('test_loss', loss.item())  # Lightning automatically averages scalars over batches for testing
+        self.log("test_loss", loss.item())  # Lightning automatically averages scalars over batches for testing
         return loss
 
     def configure_optimizers(self) -> torch.optim.Optimizer | tuple[list, list]:
@@ -357,14 +357,13 @@ class DDPM(LightningModule):
 
         # create LR schedule (if a schedule has been set)
         else:
-
             # get total number of training time units
-            if self.lr_interval == 'epoch':
+            if self.lr_interval == "epoch":
                 num_total = self.trainer.max_epochs
-            elif self.lr_interval == 'step':
+            elif self.lr_interval == "step":
                 num_total = self.trainer.estimated_stepping_batches
             else:
-                raise ValueError(f'Unknown LR interval: {self.lr_interval}')
+                raise ValueError(f"Unknown LR interval: {self.lr_interval}")
 
             # create LR scheduler
             lr_scheduler = make_lr_schedule(
@@ -372,14 +371,14 @@ class DDPM(LightningModule):
                 mode=self.lr_schedule,
                 num_total=num_total,
                 num_warmup=self.lr_warmup,
-                last_epoch=-1
+                last_epoch=-1,
             )
 
             # create LR config
             lr_config = {
-                'scheduler': lr_scheduler,  # set LR scheduler
-                'interval': self.lr_interval,  # set time unit (step or epoch)
-                'frequency': 1  # set update frequency
+                "scheduler": lr_scheduler,  # set LR scheduler
+                "interval": self.lr_interval,  # set time unit (step or epoch)
+                "frequency": 1,  # set update frequency
             }
 
             return [optimizer], [lr_config]

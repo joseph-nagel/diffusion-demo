@@ -1,4 +1,4 @@
-'''
+"""
 Datamodules.
 
 Modules
@@ -6,7 +6,7 @@ Modules
 mnist : MNIST datamodule.
 swissroll : Swiss roll datamodule.
 
-'''
+"""
 
 from . import mnist, swissroll
 from .mnist import MNISTDataModule

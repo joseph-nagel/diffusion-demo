@@ -1,11 +1,11 @@
-'''Attention.'''
+"""Attention."""
 
 import torch
 import torch.nn as nn
 
 
 class SelfAttention2D(nn.Module):
-    '''
+    """
     Self-attention with skip connections for 2D data.
 
     Summary
@@ -23,14 +23,9 @@ class SelfAttention2D(nn.Module):
     scale : bool
         Determines whether scores are scaled.
 
-    '''
+    """
 
-    def __init__(
-        self,
-        in_channels: int,
-        out_channels: int | None = None,
-        scale: bool = False
-    ):
+    def __init__(self, in_channels: int, out_channels: int | None = None, scale: bool = False):
         super().__init__()
 
         if out_channels is None:
@@ -44,7 +39,7 @@ class SelfAttention2D(nn.Module):
 
         if scale:
             d_k_sqrt = torch.tensor(out_channels).sqrt()
-            self.register_buffer('scale', d_k_sqrt)
+            self.register_buffer("scale", d_k_sqrt)
         else:
             self.scale = None
 
@@ -52,7 +47,7 @@ class SelfAttention2D(nn.Module):
         b, c, h, w = x.shape
 
         # flatten tensor (last axis contains the sequence)
-        x_flattened = x.view(b, c, h*w)  # (b, c, h*w)
+        x_flattened = x.view(b, c, h * w)  # (b, c, h*w)
 
         # compute query, key and value
         q = self.f(x_flattened)  # (b, c', h*w)

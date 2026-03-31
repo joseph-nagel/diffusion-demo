@@ -1,4 +1,4 @@
-'''Learning rate scheduling.'''
+"""Learning rate scheduling."""
 
 import math
 from functools import partial
@@ -9,12 +9,12 @@ from torch.optim.lr_scheduler import LRScheduler, LambdaLR
 
 def make_lr_schedule(
     optimizer: Optimizer,
-    mode: str | None = 'constant',
+    mode: str | None = "constant",
     num_total: int | None = None,
     num_warmup: int | None = None,
-    last_epoch: int = -1
+    last_epoch: int = -1,
 ) -> LRScheduler:
-    '''
+    """
     Create learning rate scheduler.
 
     Summary
@@ -27,7 +27,7 @@ def make_lr_schedule(
     ----------
     optimizer : PyTorch optimizer
         Optimizer to apply the learning rate schedule to.
-    mode : {'constant', 'cosine'}
+    mode : {"constant", "cosine"}
         Learning rate schedule type.
     num_total : int
         Total number of steps (for the cosine schedule).
@@ -36,45 +36,41 @@ def make_lr_schedule(
     last_epoch : int
         Index of the last epoch (for resuming training).
 
-    '''
+    """
 
     num_warmup = max(0, num_warmup) if num_warmup is not None else 0
     num_total = max(0, num_total) if num_total is not None else 0
 
     # set constant mode with no warmup
     if mode is None:
-        mode = 'constant'
+        mode = "constant"
 
         if num_warmup > 0:
-            raise ValueError('Non-zero number of warmup steps')
+            raise ValueError("Non-zero number of warmup steps")
 
     # create constant LR scaling function
-    if mode == 'constant':
+    if mode == "constant":
         lr_lambda = partial(_constant_lr_with_warmup, num_warmup=num_warmup)
 
     # create cosine annealing LR scaling function
-    elif mode == 'cosine':
-        lr_lambda = partial(
-            _cosine_lr_with_warmup,
-            num_total=num_total,
-            num_warmup=num_warmup
-        )
+    elif mode == "cosine":
+        lr_lambda = partial(_cosine_lr_with_warmup, num_total=num_total, num_warmup=num_warmup)
 
     else:
-        raise ValueError(f'Unknown LR schedule type: {mode}')
+        raise ValueError(f"Unknown LR schedule type: {mode}")
 
     # create learning rate scheduler
     lr_scheduler = LambdaLR(
         optimizer,
         lr_lambda,
-        last_epoch=last_epoch
+        last_epoch=last_epoch,
     )
 
     return lr_scheduler
 
 
 def _constant_lr_with_warmup(current: int, num_warmup: int = 0) -> float:
-    '''Return a constant learning rate with a warmup phase.'''
+    """Return a constant learning rate with a warmup phase."""
 
     current = max(0, current)
     num_warmup = max(0, num_warmup)
@@ -88,9 +84,9 @@ def _constant_lr_with_warmup(current: int, num_warmup: int = 0) -> float:
 def _cosine_lr_with_warmup(
     current: int,
     num_total: int,
-    num_warmup: int = 0
+    num_warmup: int = 0,
 ) -> float:
-    '''Return a cosine annealing learning rate with a warmup phase.'''
+    """Return a cosine annealing learning rate with a warmup phase."""
 
     current = max(0, current)
     num_warmup = max(0, num_warmup)
@@ -102,4 +98,4 @@ def _cosine_lr_with_warmup(
         progress = (current - num_warmup) / (num_total - num_warmup)
         return 0.5 * (1.0 + math.cos(math.pi * progress))
     else:
-        raise ValueError('Current step exceeds total number')
+        raise ValueError("Current step exceeds total number")
