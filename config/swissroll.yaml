@@ -33,7 +33,7 @@ model:
     lr_warmup: 0
 
 trainer:
-  accelerator: "cpu"
+  accelerator: "auto"
   max_epochs: 1000
   log_every_n_steps: 5
   logger:
