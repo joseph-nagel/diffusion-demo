@@ -134,7 +134,7 @@ class ClassEmbedding(nn.Embedding):
 
     def forward(self, cids: torch.Tensor) -> torch.Tensor:
 
-        # ensure (batch, 1)-shape input
+        # ensure (batch, 1)-shaped input
         if cids.ndim in (0, 1):
             cids = cids.view(-1, 1)
         elif cids.ndim != 2 or cids.shape[1] != 1:
